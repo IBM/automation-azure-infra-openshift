@@ -1,0 +1,17 @@
+## OpenShift Cluster Prefix
+cluster_name="PREFIXqs-test"
+
+## Resource group name containing the base domain name
+resource_group_name="ocp-domain"
+
+## Base domain name (e.g. myclusters.mydomain.com)
+base_domain_name="ocp-azure.ibm-software-everywhere.dev"
+
+## Azure region into which to deploy
+region="REGION"
+
+## OpenShift version to install
+openshift_version="4.10.11"
+
+
+
