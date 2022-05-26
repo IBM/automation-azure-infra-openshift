@@ -1,5 +1,5 @@
 ## OpenShift Cluster Prefix
-cluster_name="PREFIXquickstart"
+cluster_name="PREFIXqs-test"
 
 ## Resource group name containing the base domain name
 resource_group_name="ocp-domain"

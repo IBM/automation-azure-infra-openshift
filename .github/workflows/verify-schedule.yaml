@@ -20,15 +20,17 @@ jobs:
       # GITOPS_USERNAME: ${{ secrets.GITOPS_USERNAME }}
       # GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
 
-  notify:
-    needs: [verify]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify discord
-        uses: th0th/notify-discord@v0.4.1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_AUTOMATION_HOOK_URL }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_JOB_NAME: "Verify"
-          GITHUB_JOB_STATUS: ${{ needs.verify.outputs.status }}
+#### Excluding notify as do not have a discord webhook secret
+#
+#  notify:
+#    needs: [verify]
+#    if: ${{ always() }}
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Notify discord
+#        uses: th0th/notify-discord@v0.4.1
+#        env:
+#          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_AUTOMATION_HOOK_URL }}
+#          GITHUB_ACTOR: ${{ github.actor }}
+#          GITHUB_JOB_NAME: "Verify"
+#          GITHUB_JOB_STATUS: ${{ needs.verify.outputs.status }}
