@@ -1,0 +1,62 @@
+apiVersion: cloud.ibm.com/v1alpha1
+kind: BillOfMaterial
+metadata:
+  name: 110-azure-acme-certificate
+  labels:
+    type: infrastructure
+    platform: azure
+    code: '110'
+  annotations:
+    displayName: Azure Acme Certificate
+    description: Azure Acme Certificate for OpenShift
+spec:
+  modules:
+    - name: azure-acme-certificate
+      alias: apps-certificate
+      version: v1.0.0
+    - name: azure-acme-certificate
+      alias: api-certificate
+      version: v1.0.0
+  variables:
+    - name: apps-certificate_resource_group_name
+      type: string
+      description: Resource Group where the public DNS zone is deployed
+    - name: apps-certificate_acme_registration_email
+      type: string
+      description: Email address used to register with letsencrypt
+    - name: apps-certificate_domain
+      type: string
+      description: Domain for this certificate e.g. apps.cluster.example.com
+    - name: apps-certificate_subscription_id
+      type: string
+      description: Azure Subscription ID
+    - name: apps-certificate_tenant_id
+      type: string
+      description: Azure Tenant ID
+    - name: apps-certificate_client_id
+      type: string
+      description: Azure Client ID
+    - name: apps-certificate_client_secret
+      type: string
+      description: Azure Client Secret
+    - name: api-certificate_resource_group_name
+      type: string
+      description: Resource Group where the public DNS zone is deployed
+    - name: api-certificate_acme_registration_email
+      type: string
+      description: Email address used to register with letsencrypt
+    - name: api-certificate_domain
+      type: string
+      description: Domain for this certificate e.g. apps.cluster.example.com
+    - name: api-certificate_subscription_id
+      type: string
+      description: Azure Subscription ID
+    - name: api-certificate_tenant_id
+      type: string
+      description: Azure Tenant ID
+    - name: api-certificate_client_id
+      type: string
+      description: Azure Client ID
+    - name: api-certificate_client_secret
+      type: string
+      description: Azure Client Secret

@@ -1,0 +1,5 @@
+digraph {
+    rankdir="BT"
+    "apps-certificate (azure-acme-certificate)"
+"api-certificate (azure-acme-certificate)"
+  }

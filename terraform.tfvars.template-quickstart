@@ -13,5 +13,11 @@ region="REGION"
 ## OpenShift version to install
 openshift_version="4.10.11"
 
+## The number of worker nodes to create
+worker_node_qty=3
+
+## The type of worker nodes to create
+worker_node_type="Standard_D4s_v3"
+
 
 

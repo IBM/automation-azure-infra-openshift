@@ -32,6 +32,19 @@ The automation is delivered in a number of layers that are applied in order. Lay
 </ul>
 </td>
 </tr>
+<tr>
+<td>110 - Azure Acme Certificate</td>
+<td>This layer replaces the self-signed certificates with auto-generated ones from Acme & LetsEncrypt. This allows web browser console access to the cluster. Note that this layer invalidates the access key in the existing kubeconfig. It is necessary to get a new access key from the console to login at the command line after applying this layer.</td>
+<td>
+<h4>Network</h4>
+<ul>
+<li>API Certificate</li>
+<li>Apps certificate</li>
+<li>Certificate Issuer CA</li>
+<li>OpenShift Cluster Update</li>
+</ul>
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -114,7 +127,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
       - **PREFIX_NAME** - the name prefix that should be added to all the resources. If not provided a prefix will not be added.
     ```
 6. Change the directory to the current workspace where the automation was configured (e.g. `/workspaces/current`).
-7. Inspect **terraform.tfvars** to see if there are any variables that should be changed. (The **setup-workspace.sh** script has generated **terraform.tfvars** with default values. At a minimum, modify the ***base_domain_name*** and ***resource_group_name*** values to suit the Azure DNS zone configured in the prerequisite steps)
+7. Inspect **terraform.tfvars** to see if there are any variables that should be changed. (The **setup-workspace.sh** script has generated **terraform.tfvars** with default values. At a minimum, modify the ***base_domain_name*** and ***resource_group_name*** values to suit the Azure DNS zone configured in the prerequisite steps. )
     - **base_domain_name** - the full subdomain delegated to Azure in the DNS zone (for example ocp.azure.example.com)
     - **resource_group_name** - the Azure resource group where the DNS zone has been defined
 
