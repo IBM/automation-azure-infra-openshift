@@ -42,3 +42,17 @@ variable "base_domain_name" {
 variable "pull_secret" {
   type = string
 }
+
+variable "worker_node_qty" {
+    description = "Number of compute/worker nodes to create"
+    type        = string
+}
+
+variable "worker_node_type" {
+    description = "Compute/worker node type"
+    type        = string
+}
+
+variable "acme_registration_email" {
+  type = string
+}
