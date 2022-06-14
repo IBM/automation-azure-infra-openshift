@@ -19,3 +19,5 @@ worker_node_qty=3
 ## The type of worker nodes to create
 worker_node_type="Standard_D4s_v3"
 
+## The portworx spec file (refer to https://github.com/cloud-native-toolkit/terraform-azure-portworx)
+azure-portworx_portworx_spec_file=""

@@ -1,5 +1,4 @@
 locals {
-    px_spec_file = get_env("TF_VAR_portworx_spec_file")
     px_spec = get_env("TF_VAR_portworx_spec")
 }
 
@@ -32,7 +31,6 @@ inputs = {
     server_url = dependency.ocp-ipi.outputs.server_url
     cluster_login_user = dependency.ocp-ipi.outputs.username
     cluster_login_password = dependency.ocp-ipi.outputs.password
-    azure-portworx_portworx_spec_file = local.px_spec_file
     azure-portworx_portworx_spec = local.px_spec
     azure-portworx_cluster_type = "IPI"
     cluster_login_token=""
