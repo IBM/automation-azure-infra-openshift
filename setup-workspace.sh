@@ -117,6 +117,7 @@ cat "${SCRIPT_DIR}/terraform.tfvars.template-${FLAVOR,,}" | \
 
 cp "${SCRIPT_DIR}/apply-all.sh" "${WORKSPACE_DIR}/apply-all.sh"
 cp "${SCRIPT_DIR}/destroy-all.sh" "${WORKSPACE_DIR}/destroy-all.sh"
+cp "${SCRIPT_DIR}/show-login.sh" "${WORKSPACE_DIR}/show-login.sh"
 
 echo "Looking for layers in ${SCRIPT_DIR}/${FLAVOR_DIR}"
 echo "Storage: ${STORAGE}"

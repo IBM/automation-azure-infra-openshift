@@ -19,6 +19,7 @@ jobs:
       OCP_PULL_SECRET: ${{ secrets.OCP_PULL_SECRET }}
       ACME_EMAIL_SECRET: ${{ secrets.ACME_EMAIL_SECRET }}
       TESTING: ${{ secrets.TESTING }}
+      PX_SPEC: ${{ secrets.PX_SPEC }}
       # GITOPS_USERNAME: ${{ secrets.GITOPS_USERNAME }}
       # GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
 
