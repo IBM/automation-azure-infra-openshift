@@ -86,7 +86,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 
     1. Assign Contributor and User Access Administrator roles to the service principal if not already in place.
         ```bash
-        az role assignment create --role "User Access Administrator" --assignee-object-id $(az ad sp list --filter "appId eq '$CLIENT_ID'" | jq '.[0].objectId' -r)
+        az role assignment create --role "User Access Administrator" --assignee-object-id $(az ad sp list --filter "appId eq '$CLIENT_ID'" | jq '.[0].id' -r)
         ```
         where $CLIENT_ID is the appId of the service principal created in the prior step.
 

@@ -11,7 +11,10 @@ base_domain_name="ocp-azure.ibm-software-everywhere.dev"
 region="REGION"
 
 ## OpenShift version to install
-openshift_version="4.10.11"
+# Available versions are in the Red Hat mirror
+# For AMD64 clients https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/ 
+# For ARM64 clients https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/
+openshift_version="4.8.42"
 
 ## The number of worker nodes to create
 worker_node_qty=3
