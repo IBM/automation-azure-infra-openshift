@@ -42,7 +42,7 @@ jobs:
         flavor:
           - quickstart
         storage:
-          - portworx
+          - default
       fail-fast: false
 
     env:
