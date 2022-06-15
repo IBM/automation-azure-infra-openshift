@@ -148,6 +148,14 @@ The script will run through each of the terraform layers in sequence to provisio
 From the **/workspace/current** directory, change directory into each of the layer subdirectories and run the following:
 
 ```shell
-terraform init
-terraform apply -auto-approve
+terragrunt init
+terragrunt apply -auto-approve
 ```
+
+### Obtain login information
+
+Once the "105-azure-ocp-ipi" BOM (and optionally the 110-azure-acme-certificate BOM) has successfully run it is possible to obtain the login information by running from the **/workspace/current** directory:
+```shell
+./show-login.sh
+```
+

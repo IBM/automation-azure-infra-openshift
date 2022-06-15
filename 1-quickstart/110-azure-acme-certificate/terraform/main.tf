@@ -1,5 +1,5 @@
 locals {
-  acme_api_endpoint = var.testing == "github" ? var.staging_api_endpoint : var.acme_api_endpoint
+  acme_api_endpoint = var.testing != "none" ? var.staging_api_endpoint : var.acme_api_endpoint
 }
 
 module "api-certificate" {
@@ -38,7 +38,7 @@ module "apps-certificate" {
 }
 
 module "api-certs" {
-  source = "github.com/cloud-native-toolkit/terraform-any-ocp-ipi-certs?ref=v1.0.1"
+  source = "github.com/cloud-native-toolkit/terraform-any-ocp-ipi-certs?ref=v1.0.2"
 
   apps_cert         = module.apps-certificate.cert
   apps_key          = module.apps-certificate.key

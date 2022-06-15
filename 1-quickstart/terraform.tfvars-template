@@ -11,7 +11,10 @@ base_domain_name="ocp-azure.ibm-software-everywhere.dev"
 region="REGION"
 
 ## OpenShift version to install
-openshift_version="4.10.11"
+# Available versions are in the Red Hat mirror
+# For AMD64 clients https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/ 
+# For ARM64 clients https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/
+openshift_version="4.8.42"
 
 ## The number of worker nodes to create
 worker_node_qty=3
@@ -19,7 +22,5 @@ worker_node_qty=3
 ## The type of worker nodes to create
 worker_node_type="Standard_D4s_v3"
 
-## The Acme API endpoint to be used to generate the certificate
-# This endpoint is used to test the certificate generate and is the default for github testing. 
-# Comment this out for production deployment.
-acme_api_endpoint="https://acme-staging-v02.api.letsencrypt.org/directory"
+## The portworx spec file (refer to https://github.com/cloud-native-toolkit/terraform-azure-portworx)
+azure-portworx_portworx_spec_file=""
