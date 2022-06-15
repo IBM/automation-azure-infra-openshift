@@ -5,6 +5,7 @@ SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 ## For now default to quickstart
 FLAVOR="quickstart"
 STORAGE=""
+CERT=""
 #PREFIX_NAME=""
 REGION="eastus"
 
@@ -15,7 +16,8 @@ Usage()
    echo "Usage: setup-workspace.sh -f FLAVOR -s STORAGE [-n PREFIX_NAME] [-r REGION]"
    echo "  options:"
    echo "  f     the flavor to use (quickstart, standard, advanced)"
-   echo "  s     the storage option to use (portworx or odf)"
+   echo "  s     the storage option to use (default or portworx)"
+   echo "  c     certificate to use (acme or byo)"
    echo "  n     (optional) prefix that should be used for all variables"
    echo "  r     (optional) the region where the infrastructure will be provisioned"
    echo "  h     Print this help"
@@ -32,6 +34,8 @@ while getopts ":f:s:n:r:" option; do
          FLAVOR=$OPTARG;;
       s) # Enter a name
          STORAGE=$OPTARG;;
+      c) # Enter a name
+         CERT=$OPTARG;;
       n) # Enter a name
          PREFIX_NAME=$OPTARG;;
       r) # Enter a name
@@ -45,7 +49,7 @@ done
 
 
 if [[ -z "${FLAVOR}" ]]; then
-  FLAVORS=($(find "${SCRIPT_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | grep -E "^[0-9]-" | sort | sed -e "s/[0-9]-//g" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
+  FLAVORS=($(find "${SCRIPT_DIR}"  -maxdepth 1 -type d | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | grep -E "^[0-9]-" | sort | sed -e "s/[0-9]-//g" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
 
   PS3="Select the flavor: "
 
@@ -58,7 +62,7 @@ if [[ -z "${FLAVOR}" ]]; then
 
   FLAVOR_DIR="${REPLY}-${FLAVOR,,}"
 else
-  FLAVORS=($(find "${SCRIPT_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | sort | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
+  FLAVORS=($(find "${SCRIPT_DIR}" -maxdepth 1 -type d | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | sort | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
 
   for flavor in ${FLAVORS[@]}; do
     if [[ "${flavor,,}" =~ ${FLAVOR} ]]; then
@@ -68,7 +72,7 @@ else
   done
 fi
 
-STORAGE_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -type d -maxdepth 1 -name "210-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
+STORAGE_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -maxdepth 1 -type d -name "210-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
 
 if [[ -z "${STORAGE}" ]]; then
 
@@ -84,6 +88,27 @@ else
   for storage in ${STORAGE_OPTIONS[@]}; do
     if [[ "${storage}" =~ ${STORAGE} ]]; then
       STORAGE="${storage}"
+      break
+    fi
+  done
+fi
+
+CERT_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -maxdepth 1 -type d -name "110-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
+
+if [[ -z "${CERT}" ]]; then
+
+  PS3="Select the certificate type: "
+
+  select cert in ${CERT_OPTIONS[@]}; do
+    if [[ -n "${cert}" ]]; then
+      CERT="${cert}"
+      break
+    fi
+  done
+else
+  for cert in ${CERT_OPTIONS[@]}; do
+    if [[ "${cert}" =~ ${CERT} ]]; then
+      CERT="${cert}"
       break
     fi
   done
@@ -122,7 +147,7 @@ cp "${SCRIPT_DIR}/show-login.sh" "${WORKSPACE_DIR}/show-login.sh"
 echo "Looking for layers in ${SCRIPT_DIR}/${FLAVOR_DIR}"
 echo "Storage: ${STORAGE}"
 
-find "${SCRIPT_DIR}/${FLAVOR_DIR}" -type d -maxdepth 1 | grep -vE "[.][.]/[.].*" | grep -v workspace | sort | \
+find "${SCRIPT_DIR}/${FLAVOR_DIR}" -maxdepth 1 -type d | grep -vE "[.][.]/[.].*" | grep -v workspace | sort | \
   while read dir;
 do
 
@@ -147,6 +172,18 @@ do
   ln -s "${SCRIPT_DIR}/${FLAVOR_DIR}/apply.sh" ./apply.sh
   ln -s "${SCRIPT_DIR}/${FLAVOR_DIR}/destroy.sh" ./destroy.sh
   cd - > /dev/null
+
+  if [[ "${name}" =~ ^210 ]]; then
+    CERT_FLAVOR=$(find ${SCRIPT_DIR}/${FLAVOR_DIR} -maxdepth 1 -type d | grep 110 | sed -E 's/.*\///')
+    if [[ "${CERT_FLAVOR}" != "" ]] && [[ -f "${name}/terragrunt.hcl" ]]; then
+      CURRENT_DEP=$(cat ${name}/terragrunt.hcl | grep config_path | grep 110 | sed -E 's/.*\///' | sed 's/\"//g')
+      if [[ "$CURRENT_DEP" != "" ]]; then
+        echo "Changing storage dependency to ${CERT_FLAVOR}"
+        cat ${name}/terragrunt.hcl | sed 's/${CURRENT_DEP}/${CERT_FLAVOR}/g' > ${name}/terragrunt.hcl
+      fi
+    fi
+  fi
+
 done
 
 echo "move to ${WORKSPACE_DIR} this is where your automation is configured"
