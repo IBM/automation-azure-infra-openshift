@@ -72,10 +72,10 @@ The automation is delivered in a number of layers that are applied in order. Lay
 
 4. [Create a Service Principal](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/credentials.md) with proper IAM roles.
     1. Create the service principal account if it does not already exist:
-        ```bash
-         az ad sp create-for-rbac --role Contributor --name testingSPrincipal --scopes /subscriptions/$SUBSCRIPTION_ID
+        ```shell
+         az ad sp create-for-rbac --role Contributor --name <service_principal_name> --scopes /subscriptions/$SUBSCRIPTION_ID
         ```
-        where SUBSCRIPTION_ID is the Azure subscription where the cluster is to be deployed. 
+        where SUBSCRIPTION_ID is the Azure subscription where the cluster is to be deployed and `service_principal_name` is the name to be assigned to the service principal. 
         Make a copy of the details provided
         ```json
         "addId":"<this is the CLIENT_ID value>",
@@ -85,7 +85,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
         ```
 
     1. Assign Contributor and User Access Administrator roles to the service principal if not already in place.
-        ```bash
+        ```shell
         az role assignment create --role "User Access Administrator" --assignee-object-id $(az ad sp list --filter "appId eq '$CLIENT_ID'" | jq '.[0].id' -r)
         ```
         where $CLIENT_ID is the appId of the service principal created in the prior step.
@@ -112,6 +112,9 @@ The automation is delivered in a number of layers that are applied in order. Lay
     - **TV_VAR_client_id** - The id of the service principal with Owner and User Administrator access to the subscription for cluster creation
     - **TV_VAR_client_secret** - The password of the service principal with Owner and User Administrator access to the subscription for cluster creation
     - **TV_VAR_pull_secret** - The contents of the Red Hat OpenShift pull secret downloaded in the prerequsite steps
+    - **TF_VAR_acme_registration_email** - (Optional) If using an auto-generated ingress certificate, this is the email address with which to register the certificate with LetsEncrypt.
+    - **TF_VAR_testing** - This value is used to determine whether testing or staging variables should be utilised. Lease as `none` for production deployments. A value other than `none` will request in a non-production deployment.
+    - **TF_VAR_portworx_spec** - A base64 encoded string of the Portworx specificatin yaml file. If left blank and using Portworx, ensure you specify the path to the Portworx specification yaml file in the `terraform.tfvars` file. For a Portworx implementation, either the `portworx_spec` or the `portworx_spec_file` values must be specified. If neither if specified, Portworx will not implement correctly.
 
 4. Run **./launch.sh**. This will start a container image with the prompt opened in the `/terraform` directory, pointed to the repo directory.
 5. Create a working copy of the terraform by running **./setup-workspace.sh**. The script makes a copy of the terraform in `/workspaces/current` and set up a "terraform.tfvars" file populated with default values. The **setup-workspace.sh** script has a number of optional arguments.
@@ -122,7 +125,9 @@ The automation is delivered in a number of layers that are applied in order. Lay
     where:
       - **STORAGE** - The storage provider. Possible options are `portworx` or `odf`. If not provided as an argument, a prompt will be shown.
       - **REGION** - the Azure location where the infrastructure will be provided ([available regions](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview)). Codes for each location can be obtained from the CLI using,
+            ```shell
             az account list-locations -o table
+            ```
         If not provided the value defaults to `eastus`
       - **PREFIX_NAME** - the name prefix that should be added to all the resources. If not provided a prefix will not be added.
     ```
