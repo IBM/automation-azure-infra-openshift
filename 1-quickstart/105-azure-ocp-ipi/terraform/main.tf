@@ -1,5 +1,5 @@
 module "azure-ocp-ipi" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-ocp-ipi?ref=v1.2.0"
+  source = "github.com/cloud-native-toolkit/terraform-azure-ocp-ipi?ref=v1.2.2"
 
   name_prefix = var.cluster_name
   domain_resource_group_name = var.resource_group_name  

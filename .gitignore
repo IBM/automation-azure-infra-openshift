@@ -30,3 +30,7 @@ override.tf.json
 
 *.properties
 px-spec.yaml
+
+*.tgz
+
+**/certs/*

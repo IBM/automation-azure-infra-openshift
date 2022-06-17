@@ -1,0 +1,46 @@
+apiVersion: cloud.ibm.com/v1alpha1
+kind: BillOfMaterial
+metadata:
+  name: 110-azure-byo-certificate
+  labels:
+    type: infrastructure
+    platform: azure
+    code: '110'
+  annotations:
+    displayName: Azure BYO Certificate
+    description: Azure BYO Certificate for OpenShift
+spec:
+  modules:
+    - name: ocp-ipi-certs
+      alias: api-certs
+      version: v1.0.2
+      variables:
+        - name: bin_dir
+          scope: global
+        - name: config_file_path
+          scope: global
+  variables:
+    - name: api-certs_apps_cert
+      type: string
+      description: Default ingress certificate
+    - name: api-certs_apps_key
+      type: string
+      description: Default ingress certificate key
+    - name: api-certs_apps_issuer_ca
+      type: string
+      description: Default ingress certificate issuer CA
+    - name: api-certs_api_cert
+      type: string
+      description: API Server certificate
+    - name: api-certs_api_key
+      type: string
+      description: API Server certificate key
+    - name: api-certs_api_issuer_ca
+      type: string
+      description: API Server certificate issuer CA
+    - name: bin_dir
+      type: string
+      description: Path to directory where binaries can be found.
+    - name: config_file_path
+      type: string
+      description: Path to kube config.
