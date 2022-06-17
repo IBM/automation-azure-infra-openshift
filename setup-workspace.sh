@@ -188,6 +188,15 @@ do
     fi
   fi
 
+  # The following changes the show-login.sh script to match the chosen certificate option
+  if [[ "${name}" =~ ^110 ]]; then
+    CURRENT=$(cat ${WORKSPACE_DIR}/show-login.sh | grep 110 | grep cd | sed -E 's/.*\///')
+    if [[ "${CURRENT}" != "${CERT}" ]]; then
+      echo "Setting show-login.sh to ${CERT}"
+      sed -i "s/${CURRENT}/${CERT}/" ${WORKSPACE_DIR}/show-login.sh
+    fi
+  fi
+
 done
 
 echo "move to ${WORKSPACE_DIR} this is where your automation is configured"
