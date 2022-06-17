@@ -157,7 +157,13 @@ do
     continue
   fi
 
+  # Following ensures only the selected storage type is setup
   if [[ "${name}" =~ ^210 ]] && [[ "${name}" != "${STORAGE}" ]]; then
+    continue
+  fi
+
+  # Following ensures only the selected certificate type is setup
+  if [[ "${name}" =~ ^110 ]] && [[ "${name}" != "${CERT}" ]]; then
     continue
   fi
 
@@ -173,14 +179,12 @@ do
   ln -s "${SCRIPT_DIR}/${FLAVOR_DIR}/destroy.sh" ./destroy.sh
   cd - > /dev/null
 
-  if [[ "${name}" =~ ^210 ]]; then
-    CERT_FLAVOR=$(find ${SCRIPT_DIR}/${FLAVOR_DIR} -maxdepth 1 -type d | grep 110 | sed -E 's/.*\///')
-    if [[ "${CERT_FLAVOR}" != "" ]] && [[ -f "${name}/terraform/terragrunt.hcl" ]]; then
-      CURRENT_DEP=$(cat ${SCRIPT_DIR}/${FLAVOR_DIR}/${name}/terraform/terragrunt.hcl | grep config_path | grep 110 | sed -E 's/.*\///' | sed 's/\"//g')
-      if [[ "$CURRENT_DEP" != "" ]]; then
-        echo "Changing storage dependency to ${CERT_FLAVOR}"
-        cat ${SCRIPT_DIR}/${FLAVOR_DIR}/${name}/terraform/terragrunt.hcl | sed 's/${CURRENT_DEP}/${CERT_FLAVOR}/g' > ${WORKSPACE_DIR}/${name}/terragrunt.hcl
-      fi
+  # The following changes the storage terragrunt.hcl file to match the chosen certificate option dependency
+  if [[ "${name}" =~ ^210 ]] && [[ -f "${WORKSPACE_DIR}/${name}/terragrunt.hcl" ]]; then
+    CURRENT_DEP=$(cat ${SCRIPT_DIR}/${FLAVOR_DIR}/${name}//terraform/terragrunt.hcl | grep config_path | grep 110 | sed -E 's/.*\///' | sed 's/\"//g')
+    if [[ "${CURRENT_DEP}" != "" ]] && [[ "${CURRENT_DEP}" != "${CERT}" ]]; then
+      echo "Setting ${name} dependency to ${CERT}"
+      sed -i "s/${CURRENT_DEP}/${CERT}/" ${WORKSPACE_DIR}/${name}/terragrunt.hcl
     fi
   fi
 
