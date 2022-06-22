@@ -165,3 +165,42 @@ Once the "105-azure-ocp-ipi" BOM (and optionally the 110-azure-acme-certificate 
 ./show-login.sh
 ```
 
+### Troubleshooting
+
+#### Cluster installation log
+
+The cluster install log can be found in the install directory (by default `105-azure-ocp-ipi/install/`) in a file called `.openshift-install.log`. 
+
+#### Cluster installation failure
+
+To clean up an failed cluster installation, perform the following steps from the Azure portal:
+
+1. Remove the CNAME and A records from the DNS Zone in the domain resource group. Depending upon when the cluster install failed, there will be only the CNAME for `api.<cluster_name>` or this and the A record for `*.apps.<cluster_name>`
+1. Remove the resource group containing the failed OpenShift cluster. Navigate to the resource group (`Home -> Resource groups -> <resource-group-name>`). Note that the resource group name will have a random number appended to the cluster name. For example, if the cluster name were `failed-qs`, then the resource group name would `failed-qs-<5_digit_random>-rg`. Then select the `Delete resource group` button at the top and enter the resource group name as instructed, then click delete at the bottom.
+
+#### Certificates not applied
+
+If after more than 10 minutes, the certificates have not been applied to the default ingress route, check the certificate in the browser to confirm whether it is receiving the new certificate or not. If not, investigate the following:
+
+1. Check that the certificates were successfully applied
+Review the terraform status in the `110-azure-<type>-certificate` folder:
+```shell
+terraform state list | grep set_certs
+module.api-certs.null_resource.set_certs
+```
+
+Some additional diagnostics can be done by investigating the cluster itself for the changes. After logging into the cluster,
+
+1. Check that the custom-ca configmap has been created
+```shell
+oc get configmap custom-ca -n openshift-config
+NAME        DATA   AGE
+custom-ca   1      17h
+```
+
+1. Check that the TLS secret has been added
+```shell
+oc get secret default-ingress-tls -n openshift-ingress
+NAME                  TYPE                DATA   AGE
+default-ingress-tls   kubernetes.io/tls   2      17h
+```
