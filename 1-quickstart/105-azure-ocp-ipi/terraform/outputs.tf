@@ -27,3 +27,7 @@ output "password" {
     sensitive = true
 }
 
+output "consoleURL" {
+    value = module.azure-ocp-ipi.consoleURL
+}
+

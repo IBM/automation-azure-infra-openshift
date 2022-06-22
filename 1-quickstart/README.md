@@ -117,13 +117,14 @@ The automation is delivered in a number of layers that are applied in order. Lay
     - **TF_VAR_portworx_spec** - A base64 encoded string of the Portworx specificatin yaml file. If left blank and using Portworx, ensure you specify the path to the Portworx specification yaml file in the `terraform.tfvars` file. For a Portworx implementation, either the `portworx_spec` or the `portworx_spec_file` values must be specified. If neither if specified, Portworx will not implement correctly.
 
 4. Run **./launch.sh**. This will start a container image with the prompt opened in the `/terraform` directory, pointed to the repo directory.
-5. Create a working copy of the terraform by running **./setup-workspace.sh**. The script makes a copy of the terraform in `/workspaces/current` and set up a "terraform.tfvars" file populated with default values. The **setup-workspace.sh** script has a number of optional arguments.
-
+5. Create a working copy of the terraform by running **./setup-workspace.sh**. The script makes a copy of the terraform in `/workspaces/current` and set up a "terraform.tfvars" file populated with default values. The script can be run interactively by just running **./setup-workspace.sh** or by providing command line parameters as specified below.
     ```
-    Usage: setup-workspace.sh [-s STORAGE] [-r REGION] [-n PREFIX_NAME]
+    Usage: setup-workspace.sh [-f FLAVOR] [-s STORAGE] [-c CERT_TYPE] [-r REGION] [-n PREFIX_NAME]
     
     where:
+      - **FLAVOR** - the type of deployment `quickstart`, `standard` or `advanced`. If not provided, will default to quickstart.
       - **STORAGE** - The storage provider. Possible options are `portworx` or `odf`. If not provided as an argument, a prompt will be shown.
+      - **CERT_TYPE** - The type of ingress certificate to apply. Possible options are `acme` or `byo`. Acme will obtain certificates from LetsEncrypt for the new cluster. BYO requires providing the paths to valid certificates in the **terraform.tfvars** file.
       - **REGION** - the Azure location where the infrastructure will be provided ([available regions](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview)). Codes for each location can be obtained from the CLI using,
             ```shell
             az account list-locations -o table
@@ -164,3 +165,42 @@ Once the "105-azure-ocp-ipi" BOM (and optionally the 110-azure-acme-certificate 
 ./show-login.sh
 ```
 
+### Troubleshooting
+
+#### Cluster installation log
+
+The cluster install log can be found in the install directory (by default `105-azure-ocp-ipi/install/`) in a file called `.openshift-install.log`. 
+
+#### Cluster installation failure
+
+To clean up an failed cluster installation, perform the following steps from the Azure portal:
+
+1. Remove the CNAME and A records from the DNS Zone in the domain resource group. Depending upon when the cluster install failed, there will be only the CNAME for `api.<cluster_name>` or this and the A record for `*.apps.<cluster_name>`
+1. Remove the resource group containing the failed OpenShift cluster. Navigate to the resource group (`Home -> Resource groups -> <resource-group-name>`). Note that the resource group name will have a random number appended to the cluster name. For example, if the cluster name were `failed-qs`, then the resource group name would `failed-qs-<5_digit_random>-rg`. Then select the `Delete resource group` button at the top and enter the resource group name as instructed, then click delete at the bottom.
+
+#### Certificates not applied
+
+If after more than 10 minutes, the certificates have not been applied to the default ingress route, check the certificate in the browser to confirm whether it is receiving the new certificate or not. If not, investigate the following:
+
+1. Check that the certificates were successfully applied
+Review the terraform status in the `110-azure-<type>-certificate` folder:
+```shell
+terraform state list | grep set_certs
+module.api-certs.null_resource.set_certs
+```
+
+Some additional diagnostics can be done by investigating the cluster itself for the changes. After logging into the cluster,
+
+1. Check that the custom-ca configmap has been created
+```shell
+oc get configmap custom-ca -n openshift-config
+NAME        DATA   AGE
+custom-ca   1      17h
+```
+
+1. Check that the TLS secret has been added
+```shell
+oc get secret default-ingress-tls -n openshift-ingress
+NAME                  TYPE                DATA   AGE
+default-ingress-tls   kubernetes.io/tls   2      17h
+```
