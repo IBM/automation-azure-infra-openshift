@@ -52,7 +52,6 @@ variable "azure-portworx_portworx_spec_file" {
 variable "azure-portworx_portworx_spec" {
   type = string
   description = "The yaml spec for the Portworx config. Either the `portworx_spec_file` or `portworx_spec` must be provided. The instructions for creating this configuration can be found at https://github.com/cloud-native-toolkit/terraform-azure-portworx/blob/main/PORTWORX_CONFIG.md"
-  default = ""
 }
 variable "azure-portworx_enable_encryption" {
   type = bool
