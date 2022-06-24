@@ -15,7 +15,7 @@ Usage()
    echo "Usage: setup-workspace.sh -f FLAVOR -s STORAGE -c CERTIFICATE [-n PREFIX_NAME] [-r REGION]"
    echo "  options:"
    echo "  f     the flavor to use (quickstart, standard, advanced)"
-   echo "  s     the storage option to use (portworx or odf)"
+   echo "  s     the storage option to use (portworx or default)"
    echo "  c     certificate to use (acme or byo)"
    echo "  n     (optional) prefix that should be used for all variables"
    echo "  r     (optional) the region where the infrastructure will be provisioned"
