@@ -43,6 +43,7 @@ jobs:
           - quickstart
         storage:
           - default
+          - portworx
         certificate:
           - acme
         region:
