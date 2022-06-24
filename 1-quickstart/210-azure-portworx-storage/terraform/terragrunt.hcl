@@ -27,7 +27,7 @@ dependency "ocp-ipi" {
 }
 
 inputs = {
-    cluster_ca_cert = dependency.acme-certs.outputs.ca_cert
+    cluster_ca_cert = base64encode("${dependency.acme-certs.outputs.ca_cert}")
     server_url = dependency.ocp-ipi.outputs.server_url
     cluster_login_user = dependency.ocp-ipi.outputs.username
     cluster_login_password = dependency.ocp-ipi.outputs.password
