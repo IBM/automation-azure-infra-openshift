@@ -6,7 +6,7 @@ Automation to provision the Quick Start reference architecture on Azure. This ar
 
 ![QuickStart](architecture.png)
 
-The automation is delivered in a number of layers that are applied in order. Layer `110` provisions the infrastructure including the Red Hat OpenShift cluster and the remaining layers provide configuration inside the cluster. Each layer depends on resources provided in the layer before it (e.g. `200` depends on `110`). Where two layers have the same numbers (e.g. `205`), you have a choice of which layer to apply.
+The automation is delivered in a number of layers that are applied in order. Layer (such as `110`) provisions the infrastructure including the Red Hat OpenShift cluster and the remaining layers provide configuration inside the cluster. Each layer depends on resources provided in the layer before it (e.g. `200` depends on `110`). Where two layers have the same numbers (e.g. `210`), you have a choice of which layer to apply.
 
 
 <table>
@@ -20,7 +20,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 <tbody>
 <tr>
 <td>105 - IBM VPC OpenShift</td>
-<td>This layer provisions the bulk of the Azure infrastructure and OpenShift</td>
+<td>This layer provisions the Azure infrastructure and OpenShift. It will create a new VNet and other networking components required to support the OpenShift cluster. An existing registered DNS zone for the required domain name is required (refer to prerequisites).</td>
 <td>
 <h4>Network</h4>
 <ul>
@@ -33,18 +33,38 @@ The automation is delivered in a number of layers that are applied in order. Lay
 </td>
 </tr>
 <tr>
-<td>110 - Azure Acme Certificate</td>
-<td>This layer replaces the self-signed certificates with auto-generated ones from Acme & LetsEncrypt. This allows web browser console access to the cluster. Note that this layer invalidates the access key in the existing kubeconfig. It is necessary to get a new access key from the console to login at the command line after applying this layer.</td>
+<td>110 - Ingress Certificate</td>
+<td>This layer replaces the self-signed certificates with one of two options, either auto-generated ones from LetsEncrypt or supplied certificates. This allows web browser console access to the cluster. Note that this layer invalidates the access key in the existing kubeconfig. It is necessary to get a new access key from the console to login at the command line after applying this layer.</td>
 <td>
-<h4>Network</h4>
+<h4>Acme Certificates</h4>
 <ul>
 <li>API Certificate</li>
 <li>Apps certificate</li>
-<li>Certificate Issuer CA</li>
+<li>OpenShift Cluster Update</li>
+</ul>
+<h4>BYO Certificates</h4>
+<ul>
 <li>OpenShift Cluster Update</li>
 </ul>
 </td>
 </tr>
+
+<tr>
+<td>210 - Azure Storage</td>
+<td>The storage layer has two options - default or Portworx. The default option uses Azure's storage for OpenShift persistent volumes. For quickstart, this is Premium_LRS. Other options can be configured post implementation through the OpenShift console. The Portworx option implements either a Portworx Essentials or Portworx Enterprise deployment onto the OpenShift cluster. The type of Portworx deployment is determined by the supplied Portworx specification file. </td>
+<td>
+<h4>Default</h4>
+<ul>
+<li>Azure storage class
+</ul>
+<h4>Portworx</h4>
+<ul>
+<li>Portworx operator</li>
+<li>Portworx storage classes</li>
+</ul>
+</td>
+</tr>
+
 </tbody>
 </table>
 
