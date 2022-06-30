@@ -71,7 +71,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Terraform Apply - ${{ matrix.flavor }},${{ matrix.storage }}
+      - name: Terraform Apply - Quickstart,Default
+        if: ${{ ( matrix.flavor == 'quickstart' ) && ( matrix.storage == 'default' ) }}
         run: |
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
@@ -87,8 +88,8 @@ jobs:
           
           ./apply-all.sh
 
-      - name: Terraform Destroy - ${{ matrix.flavor }},${{ matrix.storage }}
-        if: ${{ always() }}
+      - name: Terraform Destroy - Quickstart,Default
+        if: ${{ ( matrix.flavor == 'quickstart' ) && ( matrix.storage == 'default' ) }}
         run: |
           cd ../workspaces/current
           ./destroy-all.sh
