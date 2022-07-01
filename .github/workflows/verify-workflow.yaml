@@ -38,6 +38,7 @@ jobs:
       options: --privileged
 
     strategy:
+      max-parallel: 1
       matrix:
         flavor:
           - quickstart
@@ -92,3 +93,5 @@ jobs:
         run: |
           cd ../workspaces/current
           ./destroy-all.sh
+
+
