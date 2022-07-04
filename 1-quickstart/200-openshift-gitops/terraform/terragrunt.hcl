@@ -29,3 +29,11 @@ inputs = {
     cluster_login_password = dependency.ocp-ipi.outputs.password
     cluster_login_token=""
 }
+
+terraform {
+  # Ensures paralellism never exceed three modules at any time
+  extra_arguments "reduced_parallelism" {
+    commands  = get_terraform_commands_that_need_parallelism()
+    arguments = ["-parallelism=3"]
+  }
+}
