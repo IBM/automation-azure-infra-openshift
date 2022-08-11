@@ -1,0 +1,12 @@
+names_105: "105-azure-ocp-ipi"
+mock_105: "mock"
+names_110: 
+  - "110-azure-acme-certificate"
+  - "110-azure-byo-certificate"
+mock_110: "mock"
+names_200: "200-openshift-gitops"
+mock_200: "mock"
+names_210:
+  - "210-azure-default-storage"
+  - "210-azure-portworx-storage"
+names_220: "220-dev-tools"
