@@ -41,10 +41,11 @@ module "config" {
   server_name = module.gitops_repo.server_name
 }
 module "gitea" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-gitea?ref=v0.4.1"
+  source = "github.com/cloud-native-toolkit/terraform-tools-gitea?ref=v0.5.0"
 
   cluster_config_file = module.cluster.config_file_path
   cluster_type = module.cluster.platform.type_code
+  ca_cert = var.cluster_ca_cert
   instance_name = var.gitea_instance_name
   instance_namespace = module.gitea_namespace.name
   olm_namespace = module.olm.olm_namespace
