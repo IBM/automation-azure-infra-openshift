@@ -9,6 +9,14 @@ locals {
     mock_200 = local.dependencies.mock_200
 }
 
+// Reduce parallelism further for this layer
+terraform {
+  extra_arguments "reduced_parallelism" {
+    commands  = get_terraform_commands_that_need_parallelism()
+    arguments = ["-parallelism=2"]
+  }
+}
+
 dependency "gitops" {
   config_path = fileexists("${get_parent_terragrunt_dir()}/${local.dep_200}/terragrunt.hcl") ? "${get_parent_terragrunt_dir()}/${local.dep_200}" : "${get_parent_terragrunt_dir()}/.mocks/${local.mock_200}"
   # skip_outputs = fileexists("${get_parent_terragrunt_dir()}/${local.dep_200}/terragrunt.hcl") ? false : true

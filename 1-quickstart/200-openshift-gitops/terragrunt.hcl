@@ -15,6 +15,18 @@ locals {
   mock_110 = local.dependencies.mock_110
 }
 
+// Reduce parallelism further for this layer
+terraform {
+  before_hook "pause" {
+    commands  = ["apply"]
+    execute   = ["sleep","180"]
+  }
+  extra_arguments "reduced_parallelism" {
+    commands  = get_terraform_commands_that_need_parallelism()
+    arguments = ["-parallelism=2"]
+  }
+}
+
 dependency "certificates" {
   config_path = local.certificates_path
   skip_outputs = false
