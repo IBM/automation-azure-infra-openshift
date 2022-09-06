@@ -19,4 +19,5 @@ digraph {
 "gitops-console-link-job (gitops-console-link-job)" -> "gitops_repo (gitops-repo)"
 "gitops-console-link-job (gitops-console-link-job)" -> "toolkit_namespace (gitops-namespace)"
 "gitops-console-link-job (gitops-console-link-job)"
+"util-clis (util-clis)"
   }

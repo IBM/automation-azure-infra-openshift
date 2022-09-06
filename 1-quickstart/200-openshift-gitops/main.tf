@@ -16,7 +16,7 @@ module "argocd-bootstrap" {
   sealed_secret_private_key = module.sealed-secret-cert.private_key
 }
 module "cluster" {
-  source = "github.com/cloud-native-toolkit/terraform-ocp-login?ref=v1.3.1"
+  source = "github.com/cloud-native-toolkit/terraform-ocp-login?ref=v1.6.0"
 
   ca_cert = var.cluster_ca_cert
   ca_cert_file = var.cluster_ca_cert_file
@@ -30,9 +30,10 @@ module "cluster" {
   tls_secret_name = var.cluster_tls_secret_name
 }
 module "gitops_repo" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.19.4"
+  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.21.0"
 
   branch = var.gitops_repo_branch
+  debug = var.debug
   gitea_host = var.gitops_repo_gitea_host
   gitea_org = var.gitops_repo_gitea_org
   gitea_token = var.gitops_repo_gitea_token
@@ -51,7 +52,7 @@ module "gitops_repo" {
   username = var.gitops_repo_username
 }
 module "gitops-cluster-config" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-cluster-config?ref=v1.0.0"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-cluster-config?ref=v1.1.0"
 
   banner_background_color = var.gitops-cluster-config_banner_background_color
   banner_text = var.gitops-cluster-config_banner_text
@@ -88,7 +89,7 @@ module "sealed-secret-cert" {
   private_key_file = var.sealed-secret-cert_private_key_file
 }
 module "toolkit_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-namespace?ref=v1.11.2"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-namespace?ref=v1.12.1"
 
   argocd_namespace = var.toolkit_namespace_argocd_namespace
   ci = var.toolkit_namespace_ci
@@ -97,4 +98,11 @@ module "toolkit_namespace" {
   gitops_config = module.gitops_repo.gitops_config
   name = var.toolkit_namespace_name
   server_name = module.gitops_repo.server_name
+}
+module "util-clis" {
+  source = "cloud-native-toolkit/clis/util"
+  version = "1.16.9"
+
+  bin_dir = var.util-clis_bin_dir
+  clis = var.util-clis_clis == null ? null : jsondecode(var.util-clis_clis)
 }
