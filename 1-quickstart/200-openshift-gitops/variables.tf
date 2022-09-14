@@ -104,7 +104,7 @@ variable "sealed-secret-cert_private_key_file" {
 }
 variable "gitops_repo_host" {
   type = string
-  description = "The host for the git repository. The git host used can be a GitHub, GitHub Enterprise, Gitlab, Bitbucket, Gitea or Azure DevOps server. If the host is null assumes in-cluster Gitea instance will be used."
+  description = "The host for the default gitea repository."
   default = ""
 }
 variable "gitops_repo_type" {
@@ -124,7 +124,7 @@ variable "gitops_repo_project" {
 }
 variable "gitops_repo_username" {
   type = string
-  description = "The username of the user with access to the repository"
+  description = "The username of the default gitea repository"
   default = ""
 }
 variable "gitops_repo_token" {
@@ -243,4 +243,34 @@ variable "cluster_ca_cert_file" {
   type = string
   description = "The path to the file that contains the ca certificate"
   default = ""
+}
+variable "sealed-secret-cert_cert" {
+  type = string
+  description = "The public key that will be used to encrypt sealed secrets. If not provided, a new one will be generated"
+  default = ""
+}
+variable "sealed-secret-cert_private_key" {
+  type = string
+  description = "The private key that will be used to decrypt sealed secrets. If not provided, a new one will be generated"
+  default = ""
+}
+variable "sealed-secret-cert_cert_file" {
+  type = string
+  description = "The file containing the public key that will be used to encrypt the sealed secrets. If not provided a new public key will be generated"
+  default = ""
+}
+variable "sealed-secret-cert_private_key_file" {
+  type = string
+  description = "The file containin the private key that will be used to encrypt the sealed secrets. If not provided a new private key will be generated"
+  default = ""
+}
+variable "util-clis_bin_dir" {
+  type = string
+  description = "The directory where the clis should be downloaded. If not provided will default to ./bin"
+  default = ""
+}
+variable "util-clis_clis" {
+  type = string
+  description = "The list of clis that should be made available in the bin directory. Supported values are yq, jq, igc, helm, argocd, rosa, gh, glab, and kubeseal. (If not provided the list will default to yq, jq, and igc)"
+  default = "[\"yq\",\"jq\",\"igc\"]"
 }
