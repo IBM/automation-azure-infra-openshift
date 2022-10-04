@@ -15,12 +15,15 @@ locals {
   mock_110 = local.dependencies.mock_110
 }
 
-// Reduce parallelism further for this layer
+
 terraform {
+  // Pause to allow ingress certificate change to take affect
   before_hook "pause" {
     commands  = ["apply"]
-    execute   = ["sleep","180"]
+    execute   = ["sleep","10"]
   }
+
+  // Reduce parallelism further for this layer
   extra_arguments "reduced_parallelism" {
     commands  = get_terraform_commands_that_need_parallelism()
     arguments = ["-parallelism=2"]
@@ -50,7 +53,7 @@ dependency "ocp-ipi" {
 }
 
 inputs = {
-  cluster_ca_cert = base64encode("${dependency.certificates.outputs.ca_cert}")
+  cluster_ca_cert = dependency.certificates.outputs.ca_cert
   server_url = dependency.ocp-ipi.outputs.server_url
   cluster_login_user = dependency.ocp-ipi.outputs.username
   cluster_login_password = dependency.ocp-ipi.outputs.password
