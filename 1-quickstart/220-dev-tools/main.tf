@@ -1,8 +1,11 @@
 module "gitops_repo" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.21.0"
+  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.22.0"
 
   branch = var.gitops_repo_branch
+  ca_cert = var.gitops_repo_ca_cert
+  ca_cert_file = var.gitops_repo_ca_cert_file
   debug = var.debug
+  gitea_ca_cert = var.gitops_repo_gitea_ca_cert
   gitea_host = var.gitops_repo_gitea_host
   gitea_org = var.gitops_repo_gitea_org
   gitea_token = var.gitops_repo_gitea_token
@@ -21,7 +24,7 @@ module "gitops_repo" {
   username = var.gitops_repo_username
 }
 module "gitops-artifactory" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-artifactory?ref=v1.2.2"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-artifactory?ref=v1.3.0"
 
   cluster_ingress_hostname = var.gitops-artifactory_cluster_ingress_hostname
   cluster_type = var.gitops-artifactory_cluster_type
@@ -34,7 +37,7 @@ module "gitops-artifactory" {
   tls_secret_name = var.gitops-artifactory_tls_secret_name
 }
 module "gitops-buildah-unprivileged" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-buildah-unprivileged?ref=v1.1.0"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-buildah-unprivileged?ref=v1.1.1"
 
   git_credentials = module.gitops_repo.git_credentials
   gitops_config = module.gitops_repo.gitops_config
@@ -65,7 +68,7 @@ module "gitops-pact-broker" {
   tls_secret_name = var.gitops-pact-broker_tls_secret_name
 }
 module "gitops-sonarqube" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-sonarqube?ref=v1.2.6"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-sonarqube?ref=v1.3.0"
 
   cluster_ingress_hostname = var.gitops-sonarqube_cluster_ingress_hostname
   cluster_type = var.gitops-sonarqube_cluster_type
@@ -105,7 +108,7 @@ module "gitops-tekton-resources" {
   task_release = var.gitops-tekton-resources_task_release
 }
 module "tools_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-gitops-namespace?ref=v1.12.1"
+  source = "github.com/cloud-native-toolkit/terraform-gitops-namespace?ref=v1.12.2"
 
   argocd_namespace = var.tools_namespace_argocd_namespace
   ci = var.tools_namespace_ci
@@ -117,7 +120,7 @@ module "tools_namespace" {
 }
 module "util-clis" {
   source = "cloud-native-toolkit/clis/util"
-  version = "1.16.9"
+  version = "1.17.2"
 
   bin_dir = var.util-clis_bin_dir
   clis = var.util-clis_clis == null ? null : jsondecode(var.util-clis_clis)

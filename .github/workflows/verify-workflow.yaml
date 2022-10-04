@@ -20,13 +20,7 @@ on:
         required: true
       ACME_EMAIL_SECRET:
         required: true
-      TESTING:
-        required: true
       PX_SPEC:
-        required: true
-      GITOPS_USERNAME:
-        required: true
-      GITOPS_TOKEN:
         required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -59,10 +53,8 @@ jobs:
       TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
       TF_VAR_pull_secret: ${{ secrets.OCP_PULL_SECRET}}
       TF_VAR_acme_registration_email: ${{ secrets.ACME_EMAIL_SECRET }}
-      TF_VAR_testing: ${{ secrets.TESTING }}
+      TF_VAR_testing: staging
       TF_VAR_portworx_spec: ${{ secrets.PX_SPEC }}
-      TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
-      TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
 
     outputs:
       status: ${{ job.status }}

@@ -128,6 +128,11 @@ variable "gitops_repo_gitea_token" {
   description = "The personal access token used to access the repository"
   default = ""
 }
+variable "gitops_repo_gitea_ca_cert" {
+  type = string
+  description = "The base64 encoded ca certificate of the gitea instance"
+  default = ""
+}
 variable "gitops_repo_repo" {
   type = string
   description = "The short name of the repository (i.e. the part after the org/group name)"
@@ -167,6 +172,16 @@ variable "debug" {
   description = "Flag indicating that debug loggging should be enabled"
   default = false
 }
+variable "gitops_repo_ca_cert" {
+  type = string
+  description = "(optional) The certificate authority certificate for the self-signed cert used by the git server"
+  default = ""
+}
+variable "gitops_repo_ca_cert_file" {
+  type = string
+  description = "(optional) The file containing the certificate authority certificate for the self-signed cert used by the git server"
+  default = ""
+}
 variable "gitops-sonarqube_cluster_ingress_hostname" {
   type = string
   description = "Ingress hostname of the IKS cluster."
@@ -195,7 +210,7 @@ variable "gitops-sonarqube_service_account_name" {
 variable "gitops-sonarqube_plugins" {
   type = string
   description = "The list of plugins that will be installed on SonarQube"
-  default = "[\"https://github.com/checkstyle/sonar-checkstyle/releases/download/4.33/checkstyle-sonar-plugin-4.33.jar\"]"
+  default = "[\"https://github.com/checkstyle/sonar-checkstyle/releases/download/4.33/checkstyle-sonar-plugin-4.33.jar\",\"https://github.com/AmadeusITGroup/sonar-stash/releases/download/1.6.0/sonar-stash-plugin-1.6.0.jar\"]"
 }
 variable "gitops-sonarqube_hostname" {
   type = string

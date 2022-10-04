@@ -61,4 +61,4 @@ worker_node_type="Standard_D4s_v3"
 
 ## Cluster Banner
 ## config_banner_text: The text that will appear in the top banner in the cluster
-gitops-cluster-config_banner_text="BANNER"
+config_banner_text="BANNER"
