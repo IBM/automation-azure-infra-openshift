@@ -42,6 +42,9 @@ jobs:
       matrix:
         flavor:
           - quickstart
+        dist:
+          - aro
+          - ipi
         storage:
           - default
           - portworx
@@ -77,7 +80,13 @@ jobs:
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          ./setup-workspace.sh -f ${{ matrix.flavor }} -s ${{ matrix.storage }} -c ${{ matrix.certificate }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          if [[ "${{ matrix.dist }}" == "aro "]]; then
+            unset TF_VAR_gitops_repo_username
+            unset TF_VAR_gitops_repo_token
+            ./setup-workspace.sh -f ${{ matrix.flavor }} -d "aro" -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          else
+            ./setup-workspace.sh -f ${{ matrix.flavor }} -d "ipi" -s ${{ matrix.storage }} -c ${{ matrix.certificate }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
+          fi
           cd ../workspaces/current
           
           echo ""

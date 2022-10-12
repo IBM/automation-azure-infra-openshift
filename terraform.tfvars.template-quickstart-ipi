@@ -1,0 +1,64 @@
+## OpenShift Cluster Prefix
+cluster_name="PREFIXqs"
+
+## Resource group name containing the base domain name
+resource_group_name="ocp-domain"
+
+## Base domain name (e.g. myclusters.mydomain.com)
+base_domain_name="ocp-azure.ibm-software-everywhere.dev"
+
+## Azure region into which to deploy
+region="REGION"
+
+## OpenShift version to install
+# Available versions are in the Red Hat mirror
+# For AMD64 clients https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/ 
+# For ARM64 clients https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/
+openshift_version="4.8.42"
+
+## The number of worker nodes to create
+worker_node_qty=3
+
+## The type of worker nodes to create
+worker_node_type="Standard_D4s_v3"
+
+######################
+####  Portworx storage
+
+# Uncomment and include the path to the Portworx spec file (refer to https://github.com/cloud-native-toolkit/terraform-azure-portworx) if using the portworx storage
+# Make sure this path is visible from where you are running terraform/terragrunt.
+# If you are using the container approach, put the spec file into the root path for the cloned repository. This will be visible as /terraform in the container.
+# The spec file would then be at /terraform/<px-filename> within the container.
+#azure-portworx_portworx_spec_file=""
+
+# Alternately, the base64 encoded portworx yaml file can be put into the credentials.properties file.
+
+######################
+####  BYO certificates
+
+# Uncomment and include the full path to the relevant files below if using BYO certificate BOM.
+# If you are using the container approach, put the each file into a directory under the root path for the cloned repository. This will be visible as /terraform in the container.
+# The directory to the file would then be at /terraform/<folder>/<filename> within the container.
+
+## Default ingress certificate
+#apps_cert_file="/terraform/certs/apps-cert.crt"
+
+## Default ingress certificate key
+#apps_key_file="/terraform/certs/apps-cert.key"
+
+## Default ingress certificate issuer CA
+#apps_issuer_ca_file="/terraform/certs/apps-issuer-ca.crt"
+
+## API Server certificate
+#api_cert_file="/terraform/certs/api-cert.crt"
+
+## API Server certificate key
+#api_key_file="/terraform/certs/api-cert.key"
+
+## API Server certificate issuer CA
+#api_issuer_ca_file="/terraform/certs/api-issuer-ca.crt"
+
+
+## Cluster Banner
+## config_banner_text: The text that will appear in the top banner in the cluster
+gitops-cluster-config_banner_text="BANNER"

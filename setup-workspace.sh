@@ -3,10 +3,11 @@
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 
 ## For now default to quickstart
-FLAVOR="quickstart"
-STORAGE=""
+#FLAVOR="quickstart"
+#STORAGE="default"
 #PREFIX_NAME=""
 REGION="eastus"
+#DIST="ipi"
 
 Usage()
 {
@@ -15,8 +16,9 @@ Usage()
    echo "Usage: setup-workspace.sh -f FLAVOR -s STORAGE -c CERTIFICATE [-n PREFIX_NAME] [-r REGION]"
    echo "  options:"
    echo "  -f     the flavor to use (quickstart, standard, advanced)"
+   echo "  -d     OpenShift distribution (aro, ipi)"
    echo "  -s     the storage option to use (portworx or default)"
-   echo "  -c     certificate to use (acme or byo)"
+   echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
    echo "  -n     (optional) prefix that should be used for all variables"
    echo "  -r     (optional) the region where the infrastructure will be provisioned"
    echo "  -b     (optional) the banner text that should be shown at the top of the cluster"
@@ -26,13 +28,15 @@ Usage()
 }
 
 # Get the options
-while getopts ":f:s:c:n:r:b:g:" option; do
+while getopts ":f:d:s:c:n:r:b:g:" option; do
    case $option in
       h) # display Help
          Usage
          exit 1;;
       f) # Enter a name
          FLAVOR=$OPTARG;;
+      d) # Enter a name
+         DIST=$OPTARG;;
       s) # Enter a name
          STORAGE=$OPTARG;;
       c) # Enter a name
@@ -52,7 +56,6 @@ while getopts ":f:s:c:n:r:b:g:" option; do
    esac
 done
 
-
 if [[ -z "${FLAVOR}" ]]; then
   FLAVORS=($(find "${SCRIPT_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | grep -E "^[0-9]-" | sort | sed -e "s/[0-9]-//g" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
 
@@ -64,19 +67,43 @@ if [[ -z "${FLAVOR}" ]]; then
       break
     fi
   done
-
-  FLAVOR_DIR="${REPLY}-${FLAVOR,,}"
+  FLAVORS_DIR="${REPLY}-${FLAVOR,,}"
 else
   FLAVORS=($(find "${SCRIPT_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | sort | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
 
   for flavor in ${FLAVORS[@]}; do
     if [[ "${flavor,,}" =~ ${FLAVOR} ]]; then
-      FLAVOR_DIR="${flavor}"
+      FLAVORS_DIR="${flavor}"
       break
     fi
   done
 fi
 
+## Get distribution and determine full flavor directory
+if [[ -z "${DIST}" ]]; then
+  DISTS=$(find "${SCRIPT_DIR}/${FLAVORS_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/${FLAVORS_DIR}" | sed -E "s~${SCRIPT_DIR}\/${FLAVORS_DIR}/~~g" | grep -E "^[0-9]-" | sort | sed -e "s/[0-9]-//g" | tr '[:lower:]' '[:upper:]')
+
+  PS3="Select the distribution: "
+
+  select dist in ${DISTS[@]}; do
+    if [[ -n "${dist}" ]]; then
+      DISTRIBUTION="${dist}"
+      break
+    fi
+  done
+  DIST=$(echo "${DISTRIBUTION}" | tr '[:upper:]' '[:lower:]')
+  FLAVOR_DIR="${FLAVORS_DIR}/${REPLY}-${DIST}"
+else
+  DIST_DIRS=$(find "${SCRIPT_DIR}/${FLAVORS_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/${FLAVORS_DIR}" | sed -E "s~${SCRIPT_DIR}\/${FLAVORS_DIR}/~~g" | grep -E "^[0-9]-")
+  for dist_dir in ${DIST_DIRS[@]}; do
+    if [[ "${dist_dir,,}" =~ ${DIST} ]]; then
+      FLAVOR_DIR="${FLAVORS_DIR}/${dist_dir}"
+      break
+    fi
+  done
+fi
+
+# Get storage option
 STORAGE_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -type d -maxdepth 1 -name "210-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
 
 if [[ -z "${STORAGE}" ]]; then
@@ -98,25 +125,27 @@ else
   done
 fi
 
-CERT_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -maxdepth 1 -type d -name "110-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
+if [[ "${DIST}" == "ipi" ]]; then
+  CERT_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -maxdepth 1 -type d -name "110-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
 
-if [[ -z "${CERT}" ]]; then
+  if [[ -z "${CERT}" ]]; then
 
-  PS3="Select the certificate type: "
+    PS3="Select the certificate type: "
 
-  select cert in ${CERT_OPTIONS[@]}; do
-    if [[ -n "${cert}" ]]; then
-      CERT="${cert}"
-      break
-    fi
-  done
-else
-  for cert in ${CERT_OPTIONS[@]}; do
-    if [[ "${cert}" =~ ${CERT} ]]; then
-      CERT="${cert}"
-      break
-    fi
-  done
+    select cert in ${CERT_OPTIONS[@]}; do
+      if [[ -n "${cert}" ]]; then
+        CERT="${cert}"
+        break
+      fi
+    done
+  else
+    for cert in ${CERT_OPTIONS[@]}; do
+      if [[ "${cert}" =~ ${CERT} ]]; then
+        CERT="${cert}"
+        break
+      fi
+    done
+  fi
 fi
 
 WORKSPACES_DIR="${SCRIPT_DIR}/../workspaces"
@@ -137,7 +166,13 @@ echo "Setting up workspace for ${FLAVOR} in ${WORKSPACE_DIR}"
 echo "*****"
 
 if [[ -n "${PREFIX_NAME}" ]]; then
-  PREFIX_NAME="${PREFIX_NAME}"
+  PREFIX_NAME="${PREFIX_NAME}-"
+else
+  chars=abcdefghijklmnopqrstuvwxyz0123456789
+  for i in {1..5}; do
+      NAME+=${chars:RANDOM%${#chars}:1}
+  done
+  PREFIX_NAME="${NAME}-"
 fi
 
 if [[ -z "${GIT_HOST}" ]]; then
@@ -148,7 +183,7 @@ if [[ -z "${BANNER}" ]]; then
   BANNER="${FLAVOR}"
 fi
 
-cat "${SCRIPT_DIR}/terraform.tfvars.template-${FLAVOR,,}" | \
+cat "${SCRIPT_DIR}/terraform.tfvars.template-${FLAVOR,,}-${DIST}" | \
   sed "s/PREFIX/${PREFIX_NAME}/g" | \
   sed "s/BANNER/${BANNER}/g" | \
   sed "s/REGION/${REGION}/g" \
@@ -175,7 +210,10 @@ mkdir -p "${WORKSPACE_DIR}/bin"
 
 echo "Looking for layers in ${SCRIPT_DIR}/${FLAVOR_DIR}"
 echo "Cluster Storage: ${STORAGE}"
-echo "Ingress certificate: ${CERT}"
+
+if [[ "${DIST}" == "ipi" ]]; then
+  echo "Ingress certificate: ${CERT}"
+fi
 
 find "${SCRIPT_DIR}/${FLAVOR_DIR}" -type d -maxdepth 1 | grep -vE "[.][.]/[.].*" | grep -v workspace | sort | \
   while read dir;
@@ -193,7 +231,7 @@ do
   fi
 
   # Following ensures only the selected certificate type is setup
-  if [[ "${name}" =~ ^110 ]] && [[ "${name}" != "${CERT}" ]]; then
+  if [[ "${DIST}" == "ipi" ]] && [[ "${name}" =~ ^110 ]] && [[ "${name}" != "${CERT}" ]]; then
     continue
   fi
 
