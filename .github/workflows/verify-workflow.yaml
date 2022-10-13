@@ -44,8 +44,8 @@ jobs:
           - aro
           - ipi
         storage:
-          - default
-          #- portworx
+          #- default
+          - portworx
         certificate:
           - acme
         region:
@@ -88,7 +88,7 @@ jobs:
           echo "*** End terraform.tfvars ***"
           echo ""
           
-          #./apply-all.sh -a
+          ./apply-all.sh -a
 
       - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
         if: matrix.dist == 'ipi'
@@ -110,12 +110,12 @@ jobs:
           echo "*** End terraform.tfvars ***"
           echo ""
           
-          #./apply-all.sh -a
+          ./apply-all.sh -a
 
       - name: Terraform Destroy - ${{ matrix.flavor }},${{ matrix.storage }}
         if: ${{ always() }}
         run: |
           cd ../workspaces/current
-          #./destroy-all.sh -a
+          ./destroy-all.sh -a
 
 
