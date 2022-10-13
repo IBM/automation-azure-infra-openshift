@@ -72,7 +72,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Terraform Apply (ARO) - ${{ matrix.flavor }},${{ matrix.storage }}
-        if: ${{ matrix.dist }} == 'aro'
+        if: matrix.dist == 'aro'
         run: |
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
@@ -91,7 +91,7 @@ jobs:
           #./apply-all.sh -a
 
       - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
-        if: ${{ matrix.dist }} == 'ipi'
+        if: matrix.dist == 'ipi'
         env:
           TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
           TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
