@@ -4,11 +4,10 @@ Created with the ***TechZone Accelerator Toolkit***
 
 > This collection of Azure Cloud terraform automation bundles has been crafted from a set of [Terraform modules](https://modules.cloudnativetoolkit.dev/) created by Ecosystem Engineering
 
-Three different flavors of the reference architecture are provided with different levels of complexity.
+Two different flavors of the reference architecture are provided with different levels of complexity, together with two distributions (OpenShift Installer Provisioned Infrastructure/IPI and Azure Redhat OpenShift/ARO).
 
 - QuickStart - minimum to get OpenShift with public endpoints running on basic VNet, subnets and load balancer. Best for non-production workloads.
 - Standard - a simple robust architecture that can support a production workload in a single VNet with a VPN+Private Endpoints and an OpenShift cluster
-- Advanced - a sophisticated architecture isolating DMZs, Development and Production VNets for best practices
 
 ## Reference architectures
 
@@ -27,9 +26,11 @@ This set of automation packages was generated using the open-source [`isacable`]
 
 1. Have access to an Azure subscription with "Owner" and "User Access Administrator" roles. The user must be able to create a service prinicpal.
 
-2. Configure an Azure DNS zone with a valid public domain (refer to the README [here](1-quickstart/README.md) for more information)
+2. Configure an Azure DNS zone with a valid public domain (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
 
-3. Create a service principal to be used to create the cluster (refer to the README [here](1-quickstart/README.md) for more information)
+3. Create a service principal to be used to create the cluster (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
+
+    If using ARO, note that there are additional permissions needed for the service principal (refer to the README [here](1-quickstart/1-aro/sp-setup.md) for more information)
 
 4. Obtain a Red Hat [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret)
 
@@ -45,9 +46,8 @@ This set of automation packages was generated using the open-source [`isacable`]
 
 1. Determine which flavor of reference architecture you will provision: Quick Start, Standard, or Advanced.
 2. View the README in the automation directory for detailed instructions for installation steps and required information:
-    - [Quick Start](1-quickstart)
-    - [Standard](2-standard)
-    - [Advanced](3-advanced)
+    - [Quick Start - IPI](1-quickstart/2-ipi/)
+    - [Quick Start - ARO](1-quickstart/1-aro/)
 
 ### Setup
 
@@ -103,53 +103,4 @@ From the **/workspace/current** directory, run change directory into each of the
 ```shell
 terragrunt init
 terragrunt apply -auto-approve
-```
-
-### Obtain login information
-
-Once the "105-azure-ocp-ipi" BOM (and optionally the 110-azure-acme-certificate BOM) has successfully run it is possible to obtain the login information by running from the **/workspace/current** directory:
-```shell
-./show-login.sh
-```
-
-<mark>Important:</mark>It may take several minutes for the certificates to be applied to the cluster. If you get a certificate warning when attempting to access the console through a web browser, wait 5 minutes and try again.
-
-### Troubleshooting
-
-#### Cluster installation log
-
-The cluster install log can be found in the install directory (by default `105-azure-ocp-ipi/install/`) in a file called `.openshift-install.log`. 
-
-#### Cluster installation failure
-
-To clean up an failed cluster installation, perform the following steps from the Azure portal:
-
-1. Remove the CNAME and A records from the DNS Zone in the domain resource group. Depending upon when the cluster install failed, there will be only the CNAME for `api.<cluster_name>` or this and the A record for `*.apps.<cluster_name>`
-1. Remove the resource group containing the failed OpenShift cluster. Navigate to the resource group (`Home -> Resource groups -> <resource-group-name>`). Note that the resource group name will have a random number appended to the cluster name. For example, if the cluster name were `failed-qs`, then the resource group name would `failed-qs-<5_digit_random>-rg`. Then select the `Delete resource group` button at the top and enter the resource group name as instructed, then click delete at the bottom.
-
-#### Certificates not applied
-
-If after more than 10 minutes, the certificates have not been applied to the default ingress route, check the certificate in the browser to confirm whether it is receiving the new certificate or not. If not, investigate the following:
-
-1. Check that the certificates were successfully applied
-Review the terraform status in the `110-azure-<type>-certificate` folder:
-```shell
-terraform state list | grep set_certs
-module.api-certs.null_resource.set_certs
-```
-
-Some additional diagnostics can be done by investigating the cluster itself for the changes. After logging into the cluster,
-
-1. Check that the custom-ca configmap has been created
-```shell
-oc get configmap custom-ca -n openshift-config
-NAME        DATA   AGE
-custom-ca   1      17h
-```
-
-1. Check that the TLS secret has been added
-```shell
-oc get secret default-ingress-tls -n openshift-ingress
-NAME                  TYPE                DATA   AGE
-default-ingress-tls   kubernetes.io/tls   2      17h
 ```

@@ -1,4 +1,4 @@
-# Azure Quick Start Reference Architecture
+# Azure Quick Start Reference Architecture - Azure RedHat OpenShift (ARO)
 
 Automation to provision the Quick Start reference architecture on Azure. This architecture implements the minimum infrastructure required to stand up a managed Red Hat OpenShift cluster with public endpoints.
 
@@ -6,7 +6,7 @@ Automation to provision the Quick Start reference architecture on Azure. This ar
 
 ![QuickStart](architecture.png)
 
-The automation is delivered in a number of layers that are applied in order. Layer (such as `110`) provisions the infrastructure including the Red Hat OpenShift cluster and the remaining layers provide configuration inside the cluster. Each layer depends on resources provided in the layer before it (e.g. `200` depends on `110`). Where two layers have the same numbers (e.g. `210`), you have a choice of which layer to apply.
+The automation is delivered in a number of layers that are applied in order. Layer (such as `200`) provisions the infrastructure including the Red Hat OpenShift cluster and the remaining layers provide configuration inside the cluster. Each layer depends on resources provided in the layer before it (e.g. `200` depends on `105`). Where two layers have the same numbers (e.g. `210`), you have a choice of which layer to apply.
 
 
 <table>
@@ -32,22 +32,21 @@ The automation is delivered in a number of layers that are applied in order. Lay
 </ul>
 </td>
 </tr>
+
 <tr>
-<td>110 - Ingress Certificate</td>
-<td>This layer replaces the self-signed certificates with one of two options, either auto-generated ones from LetsEncrypt or supplied certificates. This allows web browser console access to the cluster. Note that this layer invalidates the access key in the existing kubeconfig. It is necessary to get a new access key from the console to login at the command line after applying this layer.</td>
+<td>200 - IBM OpenShift Gitops</td>
+<td>This layer provisions OpenShift CI/CD tools into the cluster, a GitOps repository, and bootstraps the repository to the OpenShift Gitops instance.</td>
 <td>
-<h4>Acme Certificates</h4>
+<h4>Software</h4>
 <ul>
-<li>API Certificate</li>
-<li>Apps certificate</li>
-<li>OpenShift Cluster Update</li>
-</ul>
-<h4>BYO Certificates</h4>
-<ul>
-<li>OpenShift Cluster Update</li>
+<li>OpenShift GitOps (ArgoCD)</li>
+<li>OpenShift Pipelines (Tekton)</li>
+<li>Sealed Secrets (Kubeseal)</li>
+<li>GitOps repo</li>
 </ul>
 </td>
 </tr>
+<tr>
 
 <tr>
 <td>210 - Azure Storage</td>
@@ -65,6 +64,21 @@ The automation is delivered in a number of layers that are applied in order. Lay
 </td>
 </tr>
 
+<tr>
+<td>220 - Dev Tools</td>
+<td>The dev tools layer installs standard continuous integration (CI) pipelines that integrate with tools that support the software development lifecycle.</td>
+<td>
+<h4>Software</h4>
+<ul>
+<li>Artifactory</li>
+<li>Developer Dashboard</li>
+<li>Pact Broker</li>
+<li>Sonarqube</li>
+<li>Tekton Resources</li>
+</ul>
+</td>
+</tr>
+
 </tbody>
 </table>
 
@@ -75,20 +89,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 1. Access to an Azure account with "Owner" and "User Access Administrator" roles in an Azure Subscription. The user must be able to create a service principal per the below prerequisite.
 
 2. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
-    This is required to setup the service principal per the below instructions, not to deploy OpenShift. So if you already have a service principal or create the service principal via the Azure portal, than the Azure CLI is not required.
-
-3. [Configure Azure DNS](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/dnszone.md).
-   1. Buy or have an existing domain
-   1. Decide on a subdomain of the existing domain (for example ocp.azure)
-   1. Create a new resource group in your Azure subscription
-   1. Create a DNS zone in the Azure resource group using the subdomain and existing domain (for example, ocp.azure.example.com)
-   1. Once crated, go to your domain provider and delegate access for the new subdomain to Azure domain name servers provided in the Azure DNS zone. Note that the TTL should match. 
-
-    Azure DNS Zone
-    ![azure-dns-zone](azure-dns-zone.png)
-
-    Domain Provider Delegation
-    ![domain-delegation](domain-delegation.png)
+    This is required to setup the service principal per the below instructions and to setup the ARO cluster. If using the container approach, the CLI is included in the cli-tools image.
 
 4. [Create a Service Principal](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/credentials.md) with proper IAM roles.
     1. Create the service principal account if it does not already exist:
@@ -104,13 +105,9 @@ The automation is delivered in a number of layers that are applied in order. Lay
         "tenant":"<this is the TENANT_ID value>"
         ```
 
-    1. Assign Contributor and User Access Administrator roles to the service principal if not already in place.
-        ```shell
-        az role assignment create --role "User Access Administrator" --assignee-object-id $(az ad sp list --filter "appId eq '$CLIENT_ID'" | jq '.[0].id' -r)
-        ```
-        where $CLIENT_ID is the appId of the service principal created in the prior step.
+    1. Give permissions to the service principal to create other service principals and the ARO cluster (refer [here](./sp-setup.md) for details)
 
-5. Get your [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret) and save it in `./pull-secret`.
+5. Get your [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret) and save it in `./pull-secret`. If a pull secret is not included, the ARO cluster will still be deployed, however, it will not have access to additional Red Hat features.
 
 6. (Optional) Install and start Colima to run the terraform tools in a local bootstrapped container image.
 
@@ -135,9 +132,9 @@ The automation is delivered in a number of layers that are applied in order. Lay
     - **TF_VAR_acme_registration_email** - (Optional) If using an auto-generated ingress certificate, this is the email address with which to register the certificate with LetsEncrypt.
     - **TF_VAR_testing** - This value is used to determine whether testing or staging variables should be utilised. Lease as `none` for production deployments. A value other than `none` will request in a non-production deployment.
     - **TF_VAR_portworx_spec** - A base64 encoded string of the Portworx specificatin yaml file. If left blank and using Portworx, ensure you specify the path to the Portworx specification yaml file in the `terraform.tfvars` file. For a Portworx implementation, either the `portworx_spec` or the `portworx_spec_file` values must be specified. If neither if specified, Portworx will not implement correctly.
-    - **TF_VAR_gitops_repo_username** - The username for the gitops repository
-    - **TF_VAR_gitops_repo_token** - The access token for the gitops repository
-    - **TF_VAR_gitops_repo_org** - The organisation for the gitops repository (leave blank if using a personal repository)
+    - **TF_VAR_gitops_repo_username** - The username for the gitops repository (leave blank if using GiTea)
+    - **TF_VAR_gitops_repo_token** - The access token for the gitops repository (leave blank if using GiTea)
+    - **TF_VAR_gitops_repo_org** - The organisation for the gitops repository (leave blank if using a personal repository or using GiTea)
 
 4. Run **./launch.sh**. This will start a container image with the prompt opened in the `/terraform` directory, pointed to the repo directory.
 5. Create a working copy of the terraform by running **./setup-workspace.sh**. The script makes a copy of the terraform in `/workspaces/current` and set up a "terraform.tfvars" file populated with default values. The script can be run interactively by just running **./setup-workspace.sh** or by providing command line parameters as specified below.
@@ -167,7 +164,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 From the **/workspace/current** directory, run the following:
 
 ```
-./apply-all.sh
+./apply-all.sh -a
 ```
 
 The script will run through each of the terraform layers in sequence to provision the entire infrastructure.
@@ -183,47 +180,8 @@ terragrunt apply -auto-approve
 
 ### Obtain login information
 
-Once the "105-azure-ocp-ipi" BOM (and optionally the 110-azure-acme-certificate BOM) has successfully run it is possible to obtain the login information by running from the **/workspace/current** directory:
-```shell
-./show-login.sh
+Once the installation is complete, the login details can be obtained using the following steps:
 ```
-
-### Troubleshooting
-
-#### Cluster installation log
-
-The cluster install log can be found in the install directory (by default `105-azure-ocp-ipi/install/`) in a file called `.openshift-install.log`. 
-
-#### Cluster installation failure
-
-To clean up an failed cluster installation, perform the following steps from the Azure portal:
-
-1. Remove the CNAME and A records from the DNS Zone in the domain resource group. Depending upon when the cluster install failed, there will be only the CNAME for `api.<cluster_name>` or this and the A record for `*.apps.<cluster_name>`
-1. Remove the resource group containing the failed OpenShift cluster. Navigate to the resource group (`Home -> Resource groups -> <resource-group-name>`). Note that the resource group name will have a random number appended to the cluster name. For example, if the cluster name were `failed-qs`, then the resource group name would `failed-qs-<5_digit_random>-rg`. Then select the `Delete resource group` button at the top and enter the resource group name as instructed, then click delete at the bottom.
-
-#### Certificates not applied
-
-If after more than 10 minutes, the certificates have not been applied to the default ingress route, check the certificate in the browser to confirm whether it is receiving the new certificate or not. If not, investigate the following:
-
-1. Check that the certificates were successfully applied
-Review the terraform status in the `110-azure-<type>-certificate` folder:
-```shell
-terraform state list | grep set_certs
-module.api-certs.null_resource.set_certs
-```
-
-Some additional diagnostics can be done by investigating the cluster itself for the changes. After logging into the cluster,
-
-1. Check that the custom-ca configmap has been created
-```shell
-oc get configmap custom-ca -n openshift-config
-NAME        DATA   AGE
-custom-ca   1      17h
-```
-
-1. Check that the TLS secret has been added
-```shell
-oc get secret default-ingress-tls -n openshift-ingress
-NAME                  TYPE                DATA   AGE
-default-ingress-tls   kubernetes.io/tls   2      17h
+$ az aro list -o table
+$ az aro list-credentials -c <cluster_name> -g <resource_group>
 ```
