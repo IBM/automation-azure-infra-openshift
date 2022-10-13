@@ -1,10 +1,10 @@
 module "azure-portworx" {
   source = "github.com/cloud-native-toolkit/terraform-azure-portworx?ref=v1.0.2"
 
-  azure_client_id = var.azure_client_id
-  azure_client_secret = var.azure_client_secret
-  azure_subscription_id = var.azure_subscription_id
-  azure_tenant_id = var.azure_tenant_id
+  azure_client_id = var.client_id
+  azure_client_secret = var.client_secret
+  azure_subscription_id = var.subscription_id
+  azure_tenant_id = var.tenant_id
   cluster_config_file = module.cluster.config_file_path
   cluster_type = var.azure-portworx_cluster_type
   disk_size = var.azure-portworx_disk_size

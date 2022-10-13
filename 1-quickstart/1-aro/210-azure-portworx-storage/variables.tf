@@ -3,19 +3,19 @@ variable "azure-portworx_provision" {
   description = "If set to true installs Portworx on the given cluster"
   default = "true"
 }
-variable "azure_subscription_id" {
+variable "subscription_id" {
   type = string
   description = "The subscription id of the Azure account where the OpenShift cluster has been provisioned"
 }
-variable "azure_tenant_id" {
+variable "tenant_id" {
   type = string
   description = "The tenant id of the Azure account where the OpenShift cluster has been provisioned"
 }
-variable "azure_client_id" {
+variable "client_id" {
   type = string
   description = "The client id used to access the Azure account"
 }
-variable "azure_client_secret" {
+variable "client_secret" {
   type = string
   description = "The client secret used to access the Azure account"
 }
