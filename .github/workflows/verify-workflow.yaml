@@ -62,8 +62,6 @@ jobs:
       TF_VAR_acme_registration_email: ${{ secrets.ACME_EMAIL_SECRET }}
       TF_VAR_testing: staging
       TF_VAR_portworx_spec: ${{ secrets.PX_SPEC }}
-      TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
-      TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
 
     outputs:
       status: ${{ job.status }}
@@ -73,20 +71,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Terraform Apply - ${{ matrix.flavor }},${{ matrix.storage }}
+      - name: Terraform Apply (ARO) - ${{ matrix.flavor }},${{ matrix.storage }}
+        if: ${{ matrix.dist }} == 'aro'
         run: |
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          if [[ ${{ matrix.dist }} == "aro" ]]; then
-            echo "Building an ARO cluster"
-            unset TF_VAR_gitops_repo_username
-            unset TF_VAR_gitops_repo_token
-            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
-          else
-            echo "Building an IPI cluster"
-            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -c ${{ matrix.certificate }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
-          fi
+          echo "Building an ARO cluster"
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
           cd ../workspaces/current
           
           echo ""
@@ -96,12 +88,34 @@ jobs:
           echo "*** End terraform.tfvars ***"
           echo ""
           
-          ./apply-all.sh -a
+          #./apply-all.sh -a
+
+      - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
+        if: ${{ matrix.dist }} == 'ipi'
+        env:
+          TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
+          TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
+          FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
+          STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
+          echo "Building an ARO cluster"
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          cd ../workspaces/current
+          
+          echo ""
+          echo "*** Start terraform.tfvars ***"
+          cat cluster.tfvars
+          cat gitops.tfvars
+          echo "*** End terraform.tfvars ***"
+          echo ""
+          
+          #./apply-all.sh -a
 
       - name: Terraform Destroy - ${{ matrix.flavor }},${{ matrix.storage }}
         if: ${{ always() }}
         run: |
           cd ../workspaces/current
-          ./destroy-all.sh -a
+          #./destroy-all.sh -a
 
 
