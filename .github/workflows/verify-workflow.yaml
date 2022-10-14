@@ -20,8 +20,6 @@ on:
         required: true
       ACME_EMAIL_SECRET:
         required: true
-      TESTING:
-        required: true
       PX_SPEC:
         required: true
       GITOPS_USERNAME:
@@ -34,16 +32,19 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/cloudnativetoolkit/cli-tools:v1.1-v1.8.2
+      image: quay.io/cloudnativetoolkit/cli-tools:v1.2-v2.1.3
       options: --privileged --user root
 
     strategy:
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         flavor:
           - quickstart
+        dist:
+          - aro
+          - ipi
         storage:
-          - default
+          #- default
           - portworx
         certificate:
           - acme
@@ -59,10 +60,8 @@ jobs:
       TF_VAR_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
       TF_VAR_pull_secret: ${{ secrets.OCP_PULL_SECRET}}
       TF_VAR_acme_registration_email: ${{ secrets.ACME_EMAIL_SECRET }}
-      TF_VAR_testing: ${{ secrets.TESTING }}
+      TF_VAR_testing: staging
       TF_VAR_portworx_spec: ${{ secrets.PX_SPEC }}
-      TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
-      TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
 
     outputs:
       status: ${{ job.status }}
@@ -72,12 +71,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Terraform Apply - ${{ matrix.flavor }},${{ matrix.storage }}
+      - name: Terraform Apply (ARO) - ${{ matrix.flavor }},${{ matrix.storage }}
+        if: matrix.dist == 'aro'
         run: |
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          ./setup-workspace.sh -f ${{ matrix.flavor }} -s ${{ matrix.storage }} -c ${{ matrix.certificate }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          echo "Building an ARO cluster"
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          cd ../workspaces/current
+          
+          echo ""
+          echo "*** Start terraform.tfvars ***"
+          cat cluster.tfvars
+          cat gitops.tfvars
+          echo "*** End terraform.tfvars ***"
+          echo ""
+          
+          ./apply-all.sh -a
+
+      - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
+        if: matrix.dist == 'ipi'
+        env:
+          TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
+          TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
+          FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
+          STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
+          echo "Building an IPI cluster"
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
           cd ../workspaces/current
           
           echo ""

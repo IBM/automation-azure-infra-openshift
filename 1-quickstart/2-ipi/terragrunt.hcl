@@ -20,7 +20,8 @@ retryable_errors = [
   "(?s).*Error.*failed.*timed out waiting for the condition.*",
   "(?s).*Error.*timed out waiting for the condition.*",
   "(?s).*Error.*Error logging in to.*",
-  "(?s).*Error creating repo.*"
+  "(?s).*Error creating repo.*",
+  "(?s).*read: connection reset by peer.*"
 ]
 
 retry_sleep_interval_sec = 60
