@@ -99,8 +99,8 @@ jobs:
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          echo "Building an ARO cluster"
-          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          echo "Building an IPI cluster"
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
           cd ../workspaces/current
           
           echo ""
