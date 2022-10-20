@@ -1,0 +1,10 @@
+names_101: "101-azure-vnet-std"
+mock_101: "mock"
+names_105: "105-azure-aro-std"
+mock_105: "mock"
+names_200: "200-openshift-gitops"
+mock_200: "mock"
+names_210:
+  - "210-azure-default-storage"
+  - "210-azure-portworx-storage"
+names_220: "220-dev-tools"

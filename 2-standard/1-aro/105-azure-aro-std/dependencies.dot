@@ -1,0 +1,17 @@
+digraph {
+    rankdir="BT"
+    "resource_group (azure-resource-group)"
+"vnet (azure-vnet)" -> "resource_group (azure-resource-group)"
+"vnet (azure-vnet)"
+"master-subnet (azure-vnet-subnets)" -> "resource_group (azure-resource-group)"
+"master-subnet (azure-vnet-subnets)" -> "vnet (azure-vnet)"
+"master-subnet (azure-vnet-subnets)"
+"worker-subnet (azure-vnet-subnets)" -> "resource_group (azure-resource-group)"
+"worker-subnet (azure-vnet-subnets)" -> "vnet (azure-vnet)"
+"worker-subnet (azure-vnet-subnets)"
+"cluster (azure-aro)" -> "resource_group (azure-resource-group)"
+"cluster (azure-aro)" -> "vnet (azure-vnet)"
+"cluster (azure-aro)" -> "master-subnet (azure-vnet-subnets)"
+"cluster (azure-aro)" -> "worker-subnet (azure-vnet-subnets)"
+"cluster (azure-aro)"
+  }

@@ -28,11 +28,12 @@ fi
 
 echo "Initializing container ${CONTAINER_NAME} from ${DOCKER_IMAGE}"
 ${DOCKER_CMD} run -itd --name ${CONTAINER_NAME} \
-   -v ${SRC_DIR}:/terraform \
-   -v workspace:/workspaces \
-   ${ENV_FILE} \
-   -w /terraform \
-   ${DOCKER_IMAGE}
+  --device /dev/net/tun --cap-add=NET_ADMIN \
+  -v ${SRC_DIR}:/terraform \
+  -v workspace:/workspaces \
+  ${ENV_FILE} \
+  -w /terraform \
+  ${DOCKER_IMAGE}
 
 echo "Attaching to running container..."
 ${DOCKER_CMD} attach ${CONTAINER_NAME}

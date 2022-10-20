@@ -1,0 +1,129 @@
+apiVersion: cloud.ibm.com/v1alpha1
+kind: BillOfMaterial
+metadata:
+  name: 101-azure-vnet-std
+  labels:
+    type: infrastructure
+    platform: azure
+    code: '101'
+  annotations:
+    displayName: Azure VNet
+    description: Azure base infrastructure for OpenShift standard architecture
+    vpn/required: false
+spec:
+  modules:
+    - name: azure-resource-group
+      alias: resource_group
+      version: v1.1.1
+    - name: azure-vnet
+      alias: vnet
+      version: v1.1.3
+      variables:
+        - name: address_prefixes
+          value:
+            - 10.0.0.0/20
+    - name: azure-vnet-subnets
+      alias: master_subnet
+      version: v1.3.9
+      default: true
+      variables:
+        - name: label
+          value: master
+        - name: ipv4_cidr_blocks
+          value:
+            - 10.0.1.0/24
+        - name: service_endpoints
+          value:
+            - Microsoft.ContainerRegistry
+            - Microsoft.Storage
+        - name: disable_private_link_endpoint_network_policies
+          value: true
+        - name: disable_private_link_service_network_policies
+          value: true
+    - name: azure-vnet-subnets
+      alias: worker_subnet
+      version: v1.3.9
+      variables:
+        - name: label
+          value: worker
+        - name: ipv4_cidr_blocks
+          value:
+            - 10.0.2.0/24
+        - name: service_endpoints
+          value:
+            - Microsoft.ContainerRegistry
+            - Microsoft.Storage
+    - name: azure-vnet-subnets
+      alias: ingress_subnet
+      version: v1.3.9
+      variables:
+        - name: label
+          value: ingress
+        - name: ipv4_cidr_blocks
+          value:
+            - 10.0.3.0/24
+    - name: azure-nsg
+      alias: nsg
+      version: v1.0.5
+      variables:
+        - name: acl_rules
+          value:
+            - name: ssh-inbound
+              priority: '101'
+              access: Allow
+              protocol: Tcp
+              direction: Inbound
+              source_addr: '*'
+              destination_addr: '*'
+              source_ports: '*'
+              destination_ports: '22'
+            - name: vpn-inbound-tcp
+              priority: '102'
+              access: Allow
+              protocol: Tcp
+              direction: Inbound
+              source_addr: '*'
+              destination_addr: '*'
+              source_ports: '*'
+              destination_ports: '443'
+            - name: vpn-inbound-udp
+              priority: '103'
+              access: Allow
+              protocol: Udp
+              direction: Inbound
+              source_addr: '*'
+              destination_addr: '*'
+              source_ports: '*'
+              destination_ports: '1194'
+      dependencies:
+        - name: subnets
+          ref: ingress_subnet
+    - name: azure-ssh-key
+      alias: ssh-keys
+      version: v1.0.6
+    - name: azure-vpn-server
+      alias: vpn-server
+      version: v1.0.1
+      variables:
+        - name: private_network_cidrs
+          value:
+            - 10.0.0.0/20
+      dependencies:
+        - name: subnet
+          ref: ingress_subnet
+  variables:
+    - name: resource_group_name
+      type: string
+      description: The name of the resource group
+    - name: region
+      type: string
+      description: The Azure location where the resource group will be provisioned
+    - name: subscription_id
+      type: string
+    - name: client_id
+      type: string
+    - name: client_secret
+      type: string
+      sensitive: true
+    - name: tenant_id
+      type: string

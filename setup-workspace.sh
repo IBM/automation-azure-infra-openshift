@@ -166,13 +166,13 @@ echo "Setting up workspace for ${FLAVOR} in ${WORKSPACE_DIR}"
 echo "*****"
 
 if [[ -n "${PREFIX_NAME}" ]]; then
-  PREFIX_NAME="${PREFIX_NAME}-"
+  PREFIX_NAME="${PREFIX_NAME}"
 else
   chars=abcdefghijklmnopqrstuvwxyz0123456789
   for i in {1..5}; do
       NAME+=${chars:RANDOM%${#chars}:1}
   done
-  PREFIX_NAME="${NAME}-"
+  PREFIX_NAME="${NAME}"
 fi
 
 if [[ -z "${GIT_HOST}" ]]; then
@@ -201,7 +201,7 @@ fi
 cp "${SCRIPT_DIR}/apply-all.sh" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/plan-all.sh" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/destroy-all.sh" "${WORKSPACE_DIR}"
-# cp "${SCRIPT_DIR}/check-vpn.sh" "${WORKSPACE_DIR}/check-vpn.sh"
+cp "${SCRIPT_DIR}/check-vpn.sh" "${WORKSPACE_DIR}/check-vpn.sh"
 cp -R "${SCRIPT_DIR}/${FLAVOR_DIR}/.mocks" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/${FLAVOR_DIR}/layers.yaml" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/${FLAVOR_DIR}/terragrunt.hcl" "${WORKSPACE_DIR}"
