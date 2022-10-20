@@ -39,13 +39,14 @@ jobs:
       max-parallel: 2
       matrix:
         flavor:
-          - quickstart
+          #- quickstart
+          - standard
         dist:
           - aro
-          - ipi
+          #- ipi
         storage:
-          #- default
-          - portworx
+          - default
+          #- portworx
         certificate:
           - acme
         region:
