@@ -42,11 +42,11 @@ jobs:
           #- quickstart
           - standard
         dist:
-          - aro
-          #- ipi
+          #- aro
+          - ipi
         storage:
-          - default
-          #- portworx
+          #- default
+          - portworx
         certificate:
           - acme
         region:
@@ -78,7 +78,7 @@ jobs:
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          echo "Building an ARO cluster"
+          echo "Building an ARO cluster in ${{ matrix.flavor }} architecture."
           ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
           cd ../workspaces/current
           
@@ -89,7 +89,7 @@ jobs:
           echo "*** End terraform.tfvars ***"
           echo ""
           
-          ./apply-all.sh -a
+          #./apply-all.sh -a
 
       - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
         if: matrix.dist == 'ipi'
@@ -100,23 +100,31 @@ jobs:
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
-          echo "Building an IPI cluster"
-          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
-          cd ../workspaces/current
-          
-          echo ""
-          echo "*** Start terraform.tfvars ***"
-          cat cluster.tfvars
-          cat gitops.tfvars
-          echo "*** End terraform.tfvars ***"
-          echo ""
-          
-          ./apply-all.sh -a
+          if [[ "${matrix.flavor}" == "quickstart" ]]; then
+            echo "Building an IPI cluster in ${{ matrix.flavor }} architecture."
+            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
+            cd ../workspaces/current
+            
+            echo ""
+            echo "*** Start terraform.tfvars ***"
+            cat cluster.tfvars
+            cat gitops.tfvars
+            echo "*** End terraform.tfvars ***"
+            echo ""
+
+            #./apply-all.sh -a
+          else
+            echo "Standard with IPI not currently supported"
+          fi
 
       - name: Terraform Destroy - ${{ matrix.flavor }},${{ matrix.storage }}
         if: ${{ always() }}
         run: |
-          cd ../workspaces/current
-          ./destroy-all.sh -a
+          if [[ -x ""../workspaces/current/destroy-all.sh" ]]; then
+            cd ../workspaces/current
+            #./destroy-all.sh -a
+          else
+           echo "Nothing to destroy"
+          fi
 
 
