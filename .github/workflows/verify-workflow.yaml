@@ -39,10 +39,10 @@ jobs:
       max-parallel: 2
       matrix:
         flavor:
-          #- quickstart
+          - quickstart
           - standard
         dist:
-          #- aro
+          - aro
           - ipi
         storage:
           #- default
@@ -89,7 +89,7 @@ jobs:
           echo "*** End terraform.tfvars ***"
           echo ""
           
-          #./apply-all.sh -a
+          ./apply-all.sh -a
 
       - name: Terraform Apply (IPI) - ${{ matrix.flavor }},${{ matrix.storage }}
         if: matrix.dist == 'ipi'
@@ -112,7 +112,7 @@ jobs:
             echo "*** End terraform.tfvars ***"
             echo ""
 
-            #./apply-all.sh -a
+            ./apply-all.sh -a
           else
             echo "Standard with IPI not currently supported"
           fi
