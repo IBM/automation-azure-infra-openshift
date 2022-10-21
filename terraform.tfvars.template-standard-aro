@@ -1,0 +1,32 @@
+## OpenShift Cluster Prefix
+cluster_name="PREFIX-std"
+
+## Name prefix for VNet and other components
+name_prefix="PREFIX"
+
+## Resource group name for the networking components
+resource_group_name="PREFIX-rg"
+
+## Azure region into which to deploy
+region="REGION"
+
+## The number of worker nodes to create
+cluster__count=3
+
+## The type of worker nodes to create
+cluster_flavor="Standard_D4s_v3"
+
+######################
+####  Portworx storage
+
+# Uncomment and include the path to the Portworx spec file (refer to https://github.com/cloud-native-toolkit/terraform-azure-portworx) if using the portworx storage
+# Make sure this path is visible from where you are running terraform/terragrunt.
+# If you are using the container approach, put the spec file into the root path for the cloned repository. This will be visible as /terraform in the container.
+# The spec file would then be at /terraform/<px-filename> within the container.
+#azure-portworx_portworx_spec_file=""
+
+# Alternately, the base64 encoded portworx yaml file can be put into the credentials.properties file.
+
+## Cluster Banner
+## config_banner_text: The text that will appear in the top banner in the cluster
+config_banner_text="BANNER"

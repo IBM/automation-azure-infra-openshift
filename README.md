@@ -7,7 +7,7 @@ Created with the ***TechZone Accelerator Toolkit***
 Two different flavors of the reference architecture are provided with different levels of complexity, together with two distributions (OpenShift Installer Provisioned Infrastructure/IPI and Azure Redhat OpenShift/ARO).
 
 - QuickStart - minimum to get OpenShift with public endpoints running on basic VNet, subnets and load balancer. Best for non-production workloads.
-- Standard - a simple robust architecture that can support a production workload in a single VNet with a VPN+Private Endpoints and an OpenShift cluster
+- Standard - a simple robust architecture that can support a production workload in a single VNet with a VPN and an OpenShift cluster
 
 ## Reference architectures
 
@@ -17,7 +17,11 @@ This set of automation packages was generated using the open-source [`isacable`]
 
 ### Quick Start
 
-![QuickStart](1-quickstart/architecture.png)
+![QuickStart](1-quickstart/1-aro/architecture.png)
+
+### Standard
+
+![Standard](2-standard/1-aro/architecture.png)
 
 
 ## Automation
@@ -44,10 +48,11 @@ This set of automation packages was generated using the open-source [`isacable`]
 
 ### Planning
 
-1. Determine which flavor of reference architecture you will provision: Quick Start, Standard, or Advanced.
+1. Determine which flavor of reference architecture you will provision: Quick Start or Standard.
 2. View the README in the automation directory for detailed instructions for installation steps and required information:
     - [Quick Start - IPI](1-quickstart/2-ipi/)
     - [Quick Start - ARO](1-quickstart/1-aro/)
+    - [Standard - ARO](2-standard/1-aro/)
 
 ### Setup
 
@@ -91,7 +96,7 @@ This set of automation packages was generated using the open-source [`isacable`]
 From the **/workspace/current** directory, run the following:
 
 ```
-./apply-all.sh
+./apply-all.sh -a
 ```
 
 The script will run through each of the terraform layers in sequence to provision the entire infrastructure.

@@ -1,10 +1,10 @@
-# Azure Quick Start Reference Architecture - Azure RedHat OpenShift (ARO)
+# Azure Standard Reference Architecture - Azure RedHat OpenShift (ARO)
 
-Automation to provision the Quick Start reference architecture on Azure. This architecture implements the minimum infrastructure required to stand up a managed Red Hat OpenShift cluster with public endpoints.
+Automation to provision the Standard reference architecture on Azure. This architecture implements the minimum infrastructure required to stand up a managed Red Hat OpenShift cluster with private endpoints.
 
 ## Reference Architecture
 
-![QuickStart](architecture.png)
+![Standard](architecture.png)
 
 The automation is delivered in a number of layers that are applied in order. Layer (such as `200`) provisions the infrastructure including the Red Hat OpenShift cluster and the remaining layers provide configuration inside the cluster. Each layer depends on resources provided in the layer before it (e.g. `200` depends on `105`). Where two layers have the same numbers (e.g. `210`), you have a choice of which layer to apply.
 
@@ -17,17 +17,32 @@ The automation is delivered in a number of layers that are applied in order. Lay
 <th>Provided resources</th>
 </tr>
 </thead>
+
 <tbody>
+
 <tr>
-<td>105 - Azure ARO</td>
-<td>This layer provisions the Azure infrastructure and OpenShift. It will create a new VNet and other networking components required to support the OpenShift cluster. </td>
+<td>101 - Azure VNet Standard</td>
+<td>This layer provisions the Azure private VNet, VPN server and associated services. </td>
 <td>
 <h4>Network</h4>
 <ul>
 <li>Virtual network</li>
-<li>VNet Master and Worker Subnets</li>
+<li>Ingress, Master and Worker Subnets</li>
 <li>Network Security Group</li>
-<li>Inbound and outbound Load Balancer</li>
+<li>SSH keys and Key Vault</li>
+<li>VPN Server</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>105 - Azure ARO</td>
+<td>This layer provisions the Azure OpenShift cluster within the created private VNet. </td>
+<td>
+<h4>Network</h4>
+<ul>
+<li>Network Security Group</li>
+<li>Internal Load Balancer</li>
 <li>Red Hat OpenShift cluster</li>
 </ul>
 </td>
@@ -185,3 +200,18 @@ Once the installation is complete, the login details can be obtained using the f
 $ az aro list -o table
 $ az aro list-credentials -c <cluster_name> -g <resource_group>
 ```
+
+### Connect to the cluster
+
+Once the installation is complete, cluster access can be obtained using the downloaded VPN configuration file in the `101-azure-vnet-std` subdirectory or by using the check-vpn script as follows:
+```
+$ cd /workspace/current/105-azure-aro-std/
+$ ../check-vpn.sh
+```
+The cluster access can then be obtained using the kubeconfig file as follows:
+```
+$ cd /workspace/current/105-azure-aro-std/
+$ export KUBECONFIG="./.kube/config"
+$ oc get nodes
+```
+this should list the configured nodes on the cluster if the VPN is functioning.

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
+METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
 
 ## For now default to quickstart
 #FLAVOR="quickstart"
@@ -15,8 +16,8 @@ Usage()
    echo
    echo "Usage: setup-workspace.sh -f FLAVOR -s STORAGE -c CERTIFICATE [-n PREFIX_NAME] [-r REGION]"
    echo "  options:"
-   echo "  -f     the flavor to use (quickstart, standard, advanced)"
-   echo "  -d     OpenShift distribution (aro, ipi)"
+   echo "  -f     the flavor to use (quickstart, standard)"
+   echo "  -d     OpenShift distribution (aro, ipi). IPI is currently only available with quickstart."
    echo "  -s     the storage option to use (portworx or default)"
    echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
    echo "  -n     (optional) prefix that should be used for all variables"
@@ -103,6 +104,44 @@ else
   done
 fi
 
+# Validate flavor and distribution
+if [[ "${FLAVOR}" == "standard" ]] && [[ "${DIST}" == "ipi" ]]; then
+ echo "Openshift IPI is currently only supported with quickstart architecture. Please choose a different combination."
+ exit
+fi
+
+# Validate region
+if [[ -z "$(cat ${METADATA_FILE} | yq ".regions[] | select(.code == \"${REGION}\") | .code" )" ]]; then
+  echo "Supplied region ${REGION} is not a valid Azure region for an OpenShift deployment."
+  echo "Please select a valid deployment region."
+  SELECT_AREA=true
+elif [[ -z "${REGION}" ]]; then
+  echo "Please select the deployment region."
+  SELECT_AREA=true
+else
+  SELECT_AREA=false
+fi
+
+if $SELECT_AREA ; then
+  AREAS=$(cat ${METADATA_FILE} | yq '.regions[].area' | tr ' ' '_' | sort -u )
+  PS3="Select the deployment area: "
+  select area in ${AREAS[@]}; do
+    if [[ -n "${area}" ]]; then
+      AREA=$(echo ${area} | tr '_' ' ')
+      break
+    fi
+  done
+
+  REGIONS=$(cat ${METADATA_FILE} | yq ".regions[] | select(.area == \"${AREA}\") | .name" | tr ' ' '_')
+  PS3="Select the region within ${AREA}: "
+  select region in ${REGIONS[@]}; do
+    if [[ -n "${region}" ]]; then
+      REGION=$(cat ${METADATA_FILE} | yq ".regions[] | select(.name == \"$(echo $region | tr '_' ' ')\") | .code")
+      break
+    fi
+  done
+fi
+
 # Get storage option
 STORAGE_OPTIONS=($(find "${SCRIPT_DIR}/${FLAVOR_DIR}" -type d -maxdepth 1 -name "210-*" | grep "${SCRIPT_DIR}/${FLAVOR_DIR}/" | sed -E "s~${SCRIPT_DIR}/${FLAVOR_DIR}/~~g" | sort))
 
@@ -166,13 +205,13 @@ echo "Setting up workspace for ${FLAVOR} in ${WORKSPACE_DIR}"
 echo "*****"
 
 if [[ -n "${PREFIX_NAME}" ]]; then
-  PREFIX_NAME="${PREFIX_NAME}-"
+  PREFIX_NAME="${PREFIX_NAME}"
 else
   chars=abcdefghijklmnopqrstuvwxyz0123456789
   for i in {1..5}; do
       NAME+=${chars:RANDOM%${#chars}:1}
   done
-  PREFIX_NAME="${NAME}-"
+  PREFIX_NAME="${NAME}"
 fi
 
 if [[ -z "${GIT_HOST}" ]]; then
@@ -201,7 +240,7 @@ fi
 cp "${SCRIPT_DIR}/apply-all.sh" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/plan-all.sh" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/destroy-all.sh" "${WORKSPACE_DIR}"
-# cp "${SCRIPT_DIR}/check-vpn.sh" "${WORKSPACE_DIR}/check-vpn.sh"
+cp "${SCRIPT_DIR}/check-vpn.sh" "${WORKSPACE_DIR}/check-vpn.sh"
 cp -R "${SCRIPT_DIR}/${FLAVOR_DIR}/.mocks" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/${FLAVOR_DIR}/layers.yaml" "${WORKSPACE_DIR}"
 cp "${SCRIPT_DIR}/${FLAVOR_DIR}/terragrunt.hcl" "${WORKSPACE_DIR}"
@@ -247,3 +286,4 @@ do
 done
 
 echo "move to ${WORKSPACE_DIR} this is where your automation is configured"
+

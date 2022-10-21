@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd $(dirname $0); pwd -P)"
 SRC_DIR="${SCRIPT_DIR}"
 
-DOCKER_IMAGE="quay.io/cloudnativetoolkit/cli-tools:v1.2-v2.1.3"
+DOCKER_IMAGE="quay.io/cloudnativetoolkit/cli-tools-azure:v1.2-v0.4.20"
 
 SUFFIX=$(echo $(basename ${SCRIPT_DIR}) | base64 | sed -E "s/[^a-zA-Z0-9_.-]//g" | sed -E "s/.*(.{5})/\1/g")
 CONTAINER_NAME="cli-tools-${SUFFIX}"
@@ -28,11 +28,12 @@ fi
 
 echo "Initializing container ${CONTAINER_NAME} from ${DOCKER_IMAGE}"
 ${DOCKER_CMD} run -itd --name ${CONTAINER_NAME} \
-   -v ${SRC_DIR}:/terraform \
-   -v workspace:/workspaces \
-   ${ENV_FILE} \
-   -w /terraform \
-   ${DOCKER_IMAGE}
+  --device /dev/net/tun --cap-add=NET_ADMIN \
+  -v ${SRC_DIR}:/terraform \
+  -v workspace:/workspaces \
+  ${ENV_FILE} \
+  -w /terraform \
+  ${DOCKER_IMAGE}
 
 echo "Attaching to running container..."
 ${DOCKER_CMD} attach ${CONTAINER_NAME}

@@ -1,0 +1,116 @@
+# The following regions support ARO
+flavors:
+  - name: Quickstart
+    code: quickstart
+  - name: Standard
+    code: standard
+storage:
+  - name: Default
+    code: default
+  - name: Portworx
+    code: portworx  
+distributions:
+  - name: OpenShift IPI
+    code: ipi
+  - name: Azure Red Hat OpenShift
+    code: aro
+regions:
+  - name: South Africa North
+    code: southafricanorth
+    area: Africa
+  - name: East Asia
+    code: eastasia
+    area: Asia Pacific
+  - name: South East Asia
+    code: southeastasia
+    area: Asia Pacific
+  - name: Australia Central
+    code: australiacentral
+    area: Australia
+  - name: Australia East
+    code: australiaeast
+    area: Australia
+  - name: Australia Southeast
+    code: australiasoutheast
+    area: Australia
+  - name: Brazil South
+    code: brazilsouth
+    area: South America
+  - name: Canada Central
+    code: canadacentral
+    area: Canada
+  - name: Canada East
+    code: canadaeast
+    area: Canada
+  - name: North Europe
+    code: northeurope
+    area: Europe
+  - name: West Europe
+    code: westeurope
+    area: Europe
+  - name: France Central
+    code: francecentral
+    area: Europe
+  - name: Germany West Central
+    code: germanywestcentral
+    area: Europe
+  - name: Central India
+    code: centralindia
+    area: Asia Pacific
+  - name: South India
+    code: southindia
+    area: Asia Pacific
+  - name: Japan East
+    code: japaneast
+    area: Asia Pacific
+  - name: Japan West
+    code: japanwest
+    area: Asia Pacific
+  - name: Korea Central
+    code: koreacentral
+    area: Asia Pacific
+  - name: Qatar Central
+    code: qatarcentral
+    area: Middle East
+  - name: Sweden Central
+    code: swedencentral
+    area: Europe
+  - name: Switzerland North
+    code: switzerlandnorth
+    area: Europe
+  - name: UAE North
+    code: uaenorth
+    area: Middle East
+  - name: UK South
+    code: uksouth
+    area: Europe
+  - name: UK West
+    code: ukwest
+    area: Europe
+  - name: Central US
+    code: southcentralus
+    area: US
+  - name: East US
+    code: eastus
+    area: US
+  - name: East US 2
+    code: eastus2
+    area: US
+  - name: North Central US
+    code: northcentralus
+    area: US
+  - name: South Central US
+    code: southcentralus
+    area: US
+  - name: West Central US
+    code: westcentralus
+    area: US
+  - name: West US
+    code: westus
+    area: US
+  - name: West US 2
+    code: westus2
+    area: US
+  - name: West US 3
+    code: westus3
+    area: US
