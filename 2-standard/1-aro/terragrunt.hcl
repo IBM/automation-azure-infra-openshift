@@ -28,7 +28,8 @@ retryable_errors = [
   "(?s).*Error.*Error logging in to.*",
   "(?s).*Error creating repo.*",
   "(?s).*Error: Kubernetes cluster unreachable.*",
-  "(?s).x509: certificate signed by unknown authority.*"
+  "(?s).x509: certificate signed by unknown authority.*",
+  "(?s).argocd-bootstrap.sh.*"
 ]
 
 retry_sleep_interval_sec = 60

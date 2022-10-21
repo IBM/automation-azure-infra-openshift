@@ -21,7 +21,9 @@ retryable_errors = [
   "(?s).*Error.*timed out waiting for the condition.*",
   "(?s).*Error.*Error logging in to.*",
   "(?s).*Error creating repo.*",
-  "(?s).*read: connection reset by peer.*"
+  "(?s).*read: connection reset by peer.*",
+  "(?s).x509: certificate signed by unknown authority.*",
+  "(?s).argocd-bootstrap.sh.*"
 ]
 
 retry_sleep_interval_sec = 60
