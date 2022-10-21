@@ -120,9 +120,9 @@ jobs:
       - name: Terraform Destroy - ${{ matrix.flavor }},${{ matrix.storage }}
         if: ${{ always() }}
         run: |
-          if [[ -x ""../workspaces/current/destroy-all.sh" ]]; then
+          if [[ -x "../workspaces/current/destroy-all.sh" ]]; then
             cd ../workspaces/current
-            #./destroy-all.sh -a
+            ./destroy-all.sh -a
           else
            echo "Nothing to destroy"
           fi
