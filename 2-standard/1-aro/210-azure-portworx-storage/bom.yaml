@@ -10,6 +10,7 @@ metadata:
   annotations:
     displayName: Azure - Portworx Cluster Storage
     description: Installs Portworx into an OCP cluster on Azure
+    vpn/required: 'true'
 spec:
   modules:
     - name: azure-portworx
