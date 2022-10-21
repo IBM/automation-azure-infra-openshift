@@ -19,8 +19,8 @@ The automation is delivered in a number of layers that are applied in order. Lay
 </thead>
 <tbody>
 <tr>
-<td>105 - IBM VPC OpenShift</td>
-<td>This layer provisions the Azure infrastructure and OpenShift. It will create a new VNet and other networking components required to support the OpenShift cluster. An existing registered DNS zone for the required domain name is required (refer to prerequisites).</td>
+<td>105 - Azure ARO</td>
+<td>This layer provisions the Azure infrastructure and OpenShift. It will create a new VNet and other networking components required to support the OpenShift cluster. </td>
 <td>
 <h4>Network</h4>
 <ul>
