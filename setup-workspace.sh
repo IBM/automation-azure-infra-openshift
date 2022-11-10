@@ -29,7 +29,7 @@ Usage()
 }
 
 # Get the options
-while getopts ":f:d:s:c:n:r:b:g:" option; do
+while getopts ":f:d:s:c:n:r:b:g:h" option; do
    case $option in
       h) # display Help
          Usage
