@@ -109,3 +109,14 @@ From the **/workspace/current** directory, run change directory into each of the
 terragrunt init
 terragrunt apply -auto-approve
 ```
+
+#### Restart from exiting container
+
+If you exit the container and re-launch, to continue actions such as destroy or updating configurations, you will need to re-initialise the environment. Start the container and attach to it as before by running the `launch.sh` script from the base repository directory. Once in the container, run the following steps:
+
+```
+$ cd /workspaces/current
+$ terragrunt run-all init
+```
+
+This will run a `terraform init` in each of the sub-directories and enable further terraform actions to be performed.
