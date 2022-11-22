@@ -32,7 +32,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     container:
-      image: quay.io/cloudnativetoolkit/cli-tools-azure:v1.2-v0.4.20
+      image: quay.io/cloudnativetoolkit/cli-tools-azure:v1.2-v0.6.0
       options: --privileged --user root
 
     strategy:
