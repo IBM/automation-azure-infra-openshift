@@ -1,5 +1,5 @@
 module "ingress_subnet" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.9"
+  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.10"
 
   acl_rules = var.ingress_subnet_acl_rules == null ? null : jsondecode(var.ingress_subnet_acl_rules)
   disable_private_link_endpoint_network_policies = var.ingress_subnet_disable_private_link_endpoint_network_policies
@@ -14,7 +14,7 @@ module "ingress_subnet" {
   vnet_name = module.vnet.name
 }
 module "master_subnet" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.9"
+  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.10"
 
   acl_rules = var.master_subnet_acl_rules == null ? null : jsondecode(var.master_subnet_acl_rules)
   disable_private_link_endpoint_network_policies = var.master_subnet_disable_private_link_endpoint_network_policies
@@ -62,6 +62,7 @@ module "ssh-keys" {
   ssh_key = var.ssh-keys_ssh_key
   store_key_in_vault = var.ssh-keys_store_key_in_vault
   store_path = var.ssh-keys_store_path
+  tags = var.ssh-keys_tags
 }
 module "vnet" {
   source = "github.com/cloud-native-toolkit/terraform-azure-vnet?ref=v1.1.3"
@@ -98,7 +99,7 @@ module "vpn-server" {
   vm_size = var.vpn-server_vm_size
 }
 module "worker_subnet" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.9"
+  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.10"
 
   acl_rules = var.worker_subnet_acl_rules == null ? null : jsondecode(var.worker_subnet_acl_rules)
   disable_private_link_endpoint_network_policies = var.worker_subnet_disable_private_link_endpoint_network_policies

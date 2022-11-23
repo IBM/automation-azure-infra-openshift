@@ -20,7 +20,7 @@ digraph {
 "ssh-keys (azure-ssh-key)"
 "vpn-server (azure-vpn-server)" -> "resource_group (azure-resource-group)"
 "vpn-server (azure-vpn-server)" -> "vnet (azure-vnet)"
-"vpn-server (azure-vpn-server)" -> "master_subnet (azure-vnet-subnets)"
+"vpn-server (azure-vpn-server)" -> "ingress_subnet (azure-vnet-subnets)"
 "vpn-server (azure-vpn-server)" -> "ssh-keys (azure-ssh-key)"
 "vpn-server (azure-vpn-server)"
   }

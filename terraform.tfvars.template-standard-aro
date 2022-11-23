@@ -11,10 +11,10 @@ resource_group_name="PREFIX-rg"
 region="REGION"
 
 ## The number of worker nodes to create
-cluster__count=3
+cluster_worker_count=3
 
 ## The type of worker nodes to create
-cluster_flavor="Standard_D4s_v3"
+cluster_worker_flavor="Standard_D4s_v3"
 
 ######################
 ####  Portworx storage
