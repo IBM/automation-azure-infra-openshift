@@ -23,6 +23,81 @@ variable "gitops-artifactory_persistence" {
   description = "Flag to indicate if persistence should be enabled"
   default = true
 }
+variable "gitops_default_host" {
+  type = string
+  description = "the value of gitops_default_host"
+  default = ""
+}
+variable "gitops_default_org" {
+  type = string
+  description = "the value of gitops_default_org"
+  default = ""
+}
+variable "gitops_default_username" {
+  type = string
+  description = "the value of gitops_default_username"
+  default = ""
+}
+variable "gitops_default_token" {
+  type = string
+  description = "the value of gitops_default_token"
+  default = ""
+}
+variable "gitops_default_ca_cert" {
+  type = string
+  description = "the value of gitops_default_ca_cert"
+  default = ""
+}
+variable "gitops_host" {
+  type = string
+  description = "The host name of the gitops repository (GitHub, Github Enterprise, Gitlab, Bitbucket, Azure DevOps, and Gitea servers are supported)."
+  default = ""
+}
+variable "gitops_org" {
+  type = string
+  description = "The organization on the git server where the repsitory will be located. If not provided the org will default to the username."
+  default = ""
+}
+variable "gitops_project" {
+  type = string
+  description = "The Azure DevOps project in the git server. This value is only applied for Azure DevOps servers."
+  default = ""
+}
+variable "gitops_repo" {
+  type = string
+  description = "The name of the repository in the org on the git server."
+  default = ""
+}
+variable "gitops_username" {
+  type = string
+  description = "The username used to access the git server."
+  default = ""
+}
+variable "gitops_token" {
+  type = string
+  description = "The token used to access the git server."
+  default = ""
+}
+variable "gitops_branch" {
+  type = string
+  description = "The name of the branch in the gitops repository where the config will be stored."
+  default = "main"
+}
+variable "gitops_server_name" {
+  type = string
+  description = "The name of the server the configuration with which the configuration will be associated."
+  default = "default"
+}
+variable "gitops_ca_cert" {
+  type = string
+  description = "The ca certificate used to sign the self-signed certificate used by the git server, if applicable."
+  default = ""
+}
+variable "gitops_ca_cert_file" {
+  type = string
+  description = "The file containing the ca certificate used to sign the self-signed certificate used by the git server, if applicable."
+  default = ""
+}
 variable "gitops-dashboard_cluster_type" {
   type = string
   description = "The cluster type (openshift or ocp3 or ocp4 or kubernetes)"

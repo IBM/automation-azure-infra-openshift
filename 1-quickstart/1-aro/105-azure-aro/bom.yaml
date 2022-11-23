@@ -24,7 +24,7 @@ spec:
             - 10.0.0.0/20
     - name: azure-vnet-subnets
       alias: master-subnet
-      version: v1.3.8
+      version: v1.3.10
       variables:
         - name: label
           value: master
@@ -37,7 +37,7 @@ spec:
             - Microsoft.Storage
     - name: azure-vnet-subnets
       alias: worker-subnet
-      version: v1.3.8
+      version: v1.3.10
       variables:
         - name: label
           value: worker
@@ -50,7 +50,7 @@ spec:
             - Microsoft.Storage
     - name: azure-aro
       alias: cluster
-      version: v1.0.0
+      version: v2.0.0
       dependencies:
         - name: master-subnet
           ref: master-subnet
@@ -80,4 +80,18 @@ spec:
     - name: name_prefix
       type: string
       description: The name of the vpc resource
+      defaultValue: ''
+    - name: pull_secret
+      type: string
+      description: >-
+        The contents of the pull secret needed to access Red Hat content. The
+        contents can either be provided directly or passed through the
+        `pull_secret_file` variable
+      defaultValue: ''
+    - name: pull_secret_file
+      type: string
+      description: >-
+        Name of the file containing the pull secret needed to access Red Hat
+        content. The contents can either be provided in this file or directly
+        via the `pull_secret` variable
       defaultValue: ''
