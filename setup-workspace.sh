@@ -7,7 +7,7 @@ METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
 #FLAVOR="quickstart"
 #STORAGE="default"
 #PREFIX_NAME=""
-REGION="eastus"
+#REGION="eastus"
 #DIST="ipi"
 
 Usage()
@@ -29,7 +29,7 @@ Usage()
 }
 
 # Get the options
-while getopts ":f:d:s:c:n:r:b:g:" option; do
+while getopts ":f:d:s:c:n:r:b:g:h" option; do
    case $option in
       h) # display Help
          Usage
@@ -211,7 +211,13 @@ else
   for i in {1..5}; do
       NAME+=${chars:RANDOM%${#chars}:1}
   done
-  PREFIX_NAME="${NAME}"
+  echo "Enter name prefix (default = ${NAME}):"
+  read INPUT_NAME
+  if [[ -n $INPUT_NAME ]]; then
+    PREFIX_NAME="${INPUT_NAME}"
+  else
+    PREFIX_NAME="${NAME}"
+  fi
 fi
 
 if [[ -z "${GIT_HOST}" ]]; then
