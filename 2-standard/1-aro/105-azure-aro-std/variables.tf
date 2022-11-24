@@ -183,7 +183,7 @@ variable "cluster_name" {
 variable "cluster_disable_public_endpoint" {
   type = bool
   description = "Flag to make the cluster private only"
-  default = false
+  default = true
 }
 variable "cluster_worker_disk_size" {
   type = number
