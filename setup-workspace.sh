@@ -9,6 +9,7 @@ METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
 #PREFIX_NAME=""
 #REGION="eastus"
 #DIST="ipi"
+INTERACT=0
 
 Usage()
 {
@@ -20,6 +21,7 @@ Usage()
    echo "  -d     OpenShift distribution (aro, ipi). IPI is currently only available with quickstart."
    echo "  -s     the storage option to use (portworx or default)"
    echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
+   echo "  -i     activates interactive mode to input required values"
    echo "  -n     (optional) prefix that should be used for all variables"
    echo "  -r     (optional) the region where the infrastructure will be provisioned"
    echo "  -b     (optional) the banner text that should be shown at the top of the cluster"
@@ -29,11 +31,13 @@ Usage()
 }
 
 # Get the options
-while getopts ":f:d:s:c:n:r:b:g:h" option; do
+while getopts ":f:d:s:c:n:r:b:g:h:i" option; do
    case $option in
       h) # display Help
          Usage
          exit 1;;
+      i) # Interactive mode
+        INTERACT=1;;
       f) # Enter a name
          FLAVOR=$OPTARG;;
       d) # Enter a name
@@ -56,6 +60,189 @@ while getopts ":f:d:s:c:n:r:b:g:h" option; do
          exit 1;;
    esac
 done
+
+function menu() {
+    local item i=1 numItems=$#
+
+    for item in "$@"; do
+        printf '%s %s\n' "$((i++))" "$item"
+    done >&2
+
+    while :; do
+        printf %s "${PS3-#? }" >&2
+        read -r input
+        if [[ -z $input ]]; then
+            break
+        elif [[ $input < 1 ]] || [[ $input > $numItems ]]; then
+          echo "Invalid Selection. Enter numnber next to item." >&2
+          continue
+        fi
+        break
+    done
+
+    if [[ -n $input ]]; then
+        printf %s "${@: input:1}"
+    fi
+}
+
+function interact() {
+  local DEFAULT_FLAVOR="quickstart"
+  local DEFAULT_DIST="aro"
+  local DEFAULT_CERT="acme"
+  local DEFAULT_STORAGE="default"
+  local DEFAULT_REGION="australiaeast"
+  local DEFAULT_BANNER="$DEFAULT_FLAVOR"
+  local DEFAULT_GITHOST="gitea"
+  local MAX_PREFIX_LENGTH=5
+  local MAX_BANNER_LENGTH=25
+
+  IFS=$'\n'
+
+  if [[ -z "$(which yq)"  ]]; then
+    echo "ERROR: yq not found. yq is required for interactive mode."
+    echo "If yq is intalled, please ensure it is included in the PATH environment variable."
+    exit 1;
+  fi
+
+  # Get flavor
+  echo
+  read -r -d '' -a FLAVORS < <(yq '.flavors[].name' $METADATA_FILE | sort -u)
+  PS3="Select the architecture flavor [$(yq ".flavors[] | select(.code == \"$DEFAULT_FLAVOR\") | .name" $METADATA_FILE)]: "
+  flavor=$(menu "${FLAVORS[@]}")
+  case $flavor in
+    '') FLAVOR="$DEFAULT_FLAVOR"; ;;
+     *) FLAVOR="$(yq ".flavors[] | select(.name == \"$flavor\") | .code" $METADATA_FILE)"; ;;
+  esac
+
+  # Get disti
+  echo
+  read -r -d '' -a DISTS < <(yq '.distributions[].name' $METADATA_FILE | sort -u)
+  PS3="Select the distribution [$(yq ".distributions[] | select(.code == \"$DEFAULT_DIST\") | .name" $METADATA_FILE)]: "
+  dist=$(menu "${DISTS[@]}")
+  case $dist in
+    '') DIST="$DEFAULT_DIST"; ;;
+     *) DIST="$(yq ".distributions[] | select(.name == \"$dist\") | .code" $METADATA_FILE)"; ;;
+  esac
+
+  # Validate flavor and distribution
+  if [[ "${FLAVOR}" == "standard" ]] && [[ "${DIST}" == "ipi" ]]; then
+    echo "Openshift IPI is currently only supported with quickstart architecture. Please choose a different combination."
+    exit
+  fi
+
+  # Get region
+  echo
+  read -r -d '' -a AREAS < <(yq '.regions[].area' $METADATA_FILE | sort -u)
+  DEFAULT_AREA="$(yq ".regions[] | select(.code == \"$DEFAULT_REGION\") | .area" $METADATA_FILE)"
+  PS3="Select the deployment area [$DEFAULT_AREA]: "
+  area=$(menu "${AREAS[@]}")
+  case $area in
+    '') AREA="$DEFAULT_AREA"; ;;
+     *) AREA=$area; ;;
+  esac
+
+  echo
+  read -r -d '' -a REGIONS < <(yq ".regions[] | select(.area == \"${AREA}\") | .name" $METADATA_FILE | sort -u)
+  if [[ $AREA != $DEFAULT_AREA ]]; then
+	  DEFAULT_REGION="$(yq ".regions[] | select(.name == \"${REGIONS[0]}\") | .code" $METADATA_FILE)"
+  fi
+  PS3="Select the region within ${AREA} [$(yq ".regions[] | select(.code == \"$DEFAULT_REGION\") | .name" $METADATA_FILE)]: "
+  region=$(menu "${REGIONS[@]}")
+  case $region in
+    '') REGION="$DEFAULT_REGION"; ;;
+     *) REGION="$(yq ".regions[] | select(.name == \"$region\") | .code" $METADATA_FILE)"; ;;
+  esac
+
+  # Get storage
+  echo
+  read -r -d '' -a STORAGE_OPTIONS < <(yq '.storage[].name' $METADATA_FILE | sort -u)
+  PS3="Select the storage [$(yq ".storage[] | select(.code == \"$DEFAULT_STORAGE\") | .name" $METADATA_FILE)]: "
+  storage=$(menu "${STORAGE_OPTIONS[@]}")
+  case $storage in
+    '') STORAGE="$DEFAULT_STORAGE"; ;;
+     *) STORAGE="$(yq ".storage[] | select(.name == \"$storage\") | .code" $METADATA_FILE)"; ;;
+  esac
+
+  # Get cert
+  if [[ "${DIST}" == "ipi" ]]; then
+    echo
+    read -r -d '' -a CERT_OPTIONS < <(yq ".cert_options[].name" $METADATA_FILE | sort -u)
+    PS3="Select the certificate type [$(yq ".cert_options[] | select(.code == \"$DEFAULT_CERT\") | .name" $METADATA_FILE)] : "
+    cert=$(menu "${CERT_OPTIONS[@]}")
+    case $cert in
+      '') CERT="$DEFAULT_CERT"; ;;
+       *) CERT="$(yq ".cert_options[] | select(.name == \"$cert\") | .code" $METADATA_FILE)"; ;;
+    esac
+  else
+    CERT=""
+  fi
+
+  # Get name prefix
+  local name=""
+  chars=abcdefghijklmnopqrstuvwxyz0123456789
+  for i in {1..5}; do
+      name+=${chars:RANDOM%${#chars}:1}
+  done
+
+
+  while [[ -z $INPUT_NAME ]]; do
+    echo
+    echo -n -e "Enter name prefix [$name]: "
+    read input
+
+    if [[ -n $input ]]; then
+      if [[ $input =~ [a-zA-Z0-9] ]] && (( ${#input} <= $MAX_PREFIX_LENGTH )) ; then
+        INPUT_NAME=$input
+      else
+        echo "Invalid prefix name. Must be less than $MAX_PREFIX_LENGTH, not contain spaces and be alphanumeric characters only"
+      fi
+    elif [[ -z $input ]]; then
+      INPUT_NAME=$name
+    fi
+  done
+
+  if [[ -n $INPUT_NAME ]]; then
+    PREFIX_NAME="${INPUT_NAME}"
+  else
+    PREFIX_NAME="${NAME}"
+  fi
+
+  # Get git host
+  echo
+  read -r -d '' -a GIT_HOST_OPTIONS < <(yq ".git_hosts[].name" $METADATA_FILE)
+  PS3="Select GitOps Host Type [$(yq ".git_hosts[] | select(.code == \"$DEFAULT_GITHOST\") | .name" $METADATA_FILE)]: "
+  githost=$(menu "${GIT_HOST_OPTIONS[@]}")
+  case $githost in
+    '') GIT_HOST_CODE="$DEFAULT_GITHOST"; ;;
+     *) GIT_HOST_CODE="$(yq ".git_hosts[] | select(.name == \"$githost\") | .code" $METADATA_FILE)"; ;;
+  esac
+
+  if [[ -z $GIT_HOST_CODE ]]; then
+    echo
+    echo -n "Please enter hostname for $githost : "
+    read GIT_HOST
+  elif [[ $GIT_HOST_CODE == "gitea" ]]; then
+    GIT_HOST=""
+  else
+    GIT_HOST=$GIT_HOST_CODE
+  fi
+
+  # Get banner
+  echo
+  echo -n "Enter title for console banner [$DEFAULT_BANNER]: "
+  read BANNER_NAME
+
+  if [[ -n $BANNER_NAME ]]; then
+    BANNER="${BANNER_NAME}"
+  else
+    BANNER="${DEFAULT_BANNER}"
+  fi
+
+}
+
+if (( $INTERACT != 0 )); then
+  interact
+fi
 
 if [[ -z "${FLAVOR}" ]]; then
   FLAVORS=($(find "${SCRIPT_DIR}" -type d -maxdepth 1 | grep "${SCRIPT_DIR}/" | sed -E "s~${SCRIPT_DIR}/~~g" | grep -E "^[0-9]-" | sort | sed -e "s/[0-9]-//g" | awk '{$1=toupper(substr($1,0,1))substr($1,2)}1'))
