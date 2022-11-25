@@ -3,15 +3,9 @@
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
 
-## For now default to quickstart
-#FLAVOR="quickstart"
-#STORAGE="default"
-#PREFIX_NAME=""
-#REGION="eastus"
-#DIST="ipi"
 INTERACT=0
 
-Usage()
+function usage()
 {
    echo "Creates a workspace folder and populates it with architectures."
    echo
@@ -21,23 +15,23 @@ Usage()
    echo "  -d     OpenShift distribution (aro, ipi). IPI is currently only available with quickstart."
    echo "  -s     the storage option to use (portworx or default)"
    echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
-   echo "  -i     activates interactive mode to input required values"
    echo "  -n     (optional) prefix that should be used for all variables"
    echo "  -r     (optional) the region where the infrastructure will be provisioned"
    echo "  -b     (optional) the banner text that should be shown at the top of the cluster"
    echo "  -g     (optional) the git host that will be used for the gitops repo. If left blank gitea will be used by default. (Github, Github Enterprise, Gitlab, Bitbucket, Azure DevOps, and Gitea servers are supported)"
+   echo "  -i     activates interactive mode to input required values"
    echo "  -h     Print this help"
    echo
 }
 
 # Get the options
-while getopts ":f:d:s:c:n:r:b:g:h:i" option; do
+while getopts ":f:d:s:c:n:r:b:g:hi" option; do
    case $option in
       h) # display Help
-         Usage
+         usage
          exit 1;;
       i) # Interactive mode
-        INTERACT=1;;
+         INTERACT=1;;
       f) # Enter a name
          FLAVOR=$OPTARG;;
       d) # Enter a name
@@ -56,7 +50,7 @@ while getopts ":f:d:s:c:n:r:b:g:h:i" option; do
          BANNER=$OPTARG;;
      \?) # Invalid option
          echo "Error: Invalid option"
-         Usage
+         usage
          exit 1;;
    esac
 done
@@ -236,6 +230,32 @@ function interact() {
     BANNER="${BANNER_NAME}"
   else
     BANNER="${DEFAULT_BANNER}"
+  fi
+
+  echo
+  echo "Setting up workspace with the following"
+  echo "Architecture (Flavor) = $FLAVOR"
+  echo "Region/Location       = $REGION"
+  echo "Distribution          = $DIST"
+  echo "Storage               = $STORAGE"
+  echo "Name Prefix           = $PREFIX_NAME"
+  if [[ $DIST == "ipi" ]]; then
+    echo "Ingress Certificate   = $CERT"
+  fi
+  echo "GitOps Host           = $GIT_HOST"
+  echo "Console Banner Title  = $BANNER"
+
+  echo -n "Confirm setup workspace with these settings (Y/N) [Y]: "
+  read confirm
+
+  if [[ -z $confirm ]]; then
+    confirm="Y"
+  fi
+
+  if [[ ${confirm^} != "Y" ]]; then
+    echo "Exiting without setting up environment" >&2
+    touch /terraform/.stop
+    exit 1
   fi
 
 }

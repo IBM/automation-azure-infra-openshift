@@ -34,3 +34,5 @@ px-spec.yaml
 *.tgz
 
 **/certs/*
+
+.stop
