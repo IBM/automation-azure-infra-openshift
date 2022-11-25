@@ -106,7 +106,11 @@ The automation is delivered in a number of layers that are applied in order. Lay
 2. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
     This is required to setup the service principal per the below instructions and to setup the ARO cluster. If using the container approach, the CLI is included in the cli-tools image.
 
-4. [Create a Service Principal](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/credentials.md) with proper IAM roles.
+3. Get your [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret) and save it in `./pull-secret`. If a pull secret is not included, the ARO cluster will still be deployed, however, it will not have access to additional Red Hat features.\
+
+4. If using your Azure account, use the interactive approach in `launch.sh` to login to the Azure CLI. 
+
+4. (Optional) If using a service principal instead of your Azure account, [Create a Service Principal](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/credentials.md) with proper IAM roles.
     1. Create the service principal account if it does not already exist:
         ```shell
          az ad sp create-for-rbac --role Contributor --name <service_principal_name> --scopes /subscriptions/$SUBSCRIPTION_ID
@@ -120,15 +124,13 @@ The automation is delivered in a number of layers that are applied in order. Lay
         "tenant":"<this is the TENANT_ID value>"
         ```
 
-    1. Give permissions to the service principal to create other service principals and the ARO cluster (refer [here](./sp-setup.md) for details)
+    2. Give permissions to the service principal to create other service principals and the ARO cluster (refer [here](./sp-setup.md) for details)
 
-5. Get your [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret) and save it in `./pull-secret`. If a pull secret is not included, the ARO cluster will still be deployed, however, it will not have access to additional Red Hat features.
-
-6. (Optional) Install and start Colima to run the terraform tools in a local bootstrapped container image.
+5. (Optional) Install and start Colima to run the terraform tools in a local bootstrapped container image.
 
     ```shell
-    brew install docker colima
-    colima start
+    $ brew install docker colima
+    $ colima start
     ```
 
 ### Setup
@@ -136,7 +138,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 1. Clone this repository to your local SRE laptop or into a secure terminal. Open a shell into the cloned directory.
 2. Copy **credentials.template** to **credentials.properties**.
     ```shell
-    cp credentials.template credentials.properties
+    $ cp credentials.template credentials.properties
     ```
 3. Provide values for the variables in **credentials.properties** (**Note:** `*.properties` has been added to **.gitignore** to ensure that the file containing the apikey cannot be checked into Git.)
     - **TF_VAR_subscription_id** - The Azure subscription id where the cluster will be deployed
@@ -162,7 +164,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
       - **CERT_TYPE** - The type of ingress certificate to apply. Possible options are `acme` or `byo`. Acme will obtain certificates from LetsEncrypt for the new cluster. BYO requires providing the paths to valid certificates in the **terraform.tfvars** file.
       - **REGION** - the Azure location where the infrastructure will be provided ([available regions](https://docs.microsoft.com/en-us/azure/availability-zones/az-overview)). Codes for each location can be obtained from the CLI using,
             ```shell
-            az account list-locations -o table
+            $ az account list-locations -o table
             ```
         If not provided the value defaults to `eastus`
       - **PREFIX_NAME** - the name prefix that should be added to all the resources. If not provided a prefix will not be added.
@@ -178,8 +180,8 @@ The automation is delivered in a number of layers that are applied in order. Lay
 
 From the **/workspace/current** directory, run the following:
 
-```
-./apply-all.sh -a
+```shell
+$ ./apply-all.sh -a
 ```
 
 The script will run through each of the terraform layers in sequence to provision the entire infrastructure.
@@ -189,27 +191,26 @@ The script will run through each of the terraform layers in sequence to provisio
 From the **/workspace/current** directory, change directory into each of the layer subdirectories and run the following:
 
 ```shell
-terragrunt init
-terragrunt apply -auto-approve
+$ terragrunt init
+$ terragrunt apply -auto-approve
 ```
 
 ### Obtain login information
 
 Once the installation is complete, the login details can be obtained using the following steps:
-```
-$ az aro list -o table
-$ az aro list-credentials -c <cluster_name> -g <resource_group>
+```shell
+$ /workspaces/current/show-login.sh
 ```
 
 ### Connect to the cluster
 
-Once the installation is complete, cluster access can be obtained using the downloaded VPN configuration file in the `101-azure-vnet-std` subdirectory or by using the check-vpn script as follows:
-```
+Once the installation is complete, cluster access can be obtained using the downloaded VPN configuration file (`*.ovpn`) in the `101-azure-vnet-std` subdirectory or by using the check-vpn script as follows:
+```shell
 $ cd /workspace/current/105-azure-aro-std/
 $ ../check-vpn.sh
 ```
 The cluster access can then be obtained using the kubeconfig file as follows:
-```
+```shell
 $ cd /workspace/current/105-azure-aro-std/
 $ export KUBECONFIG="./.kube/config"
 $ oc get nodes
