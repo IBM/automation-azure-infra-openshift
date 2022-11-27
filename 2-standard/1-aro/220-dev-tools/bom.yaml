@@ -30,7 +30,7 @@ spec:
       version: v1.2.0
     - name: gitops-repo
       alias: gitops_repo
-      version: v1.22.1
+      version: v1.23.1
     - name: gitops-sonarqube
       alias: gitops-sonarqube
       version: v1.3.0
@@ -41,7 +41,7 @@ spec:
       alias: gitops-tekton-resources
       version: v2.1.0
     - name: util-clis
-      version: v1.17.2
+      version: v1.18.1
     - name: gitops-buildah-unprivileged
       version: v1.1.1
   variables:

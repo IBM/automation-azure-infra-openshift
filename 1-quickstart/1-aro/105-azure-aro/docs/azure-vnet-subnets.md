@@ -19,11 +19,12 @@ The module depends on the following software components:
 
 #### Command-line tools
 
-- terraform >= v0.15
+- terraform >= v0.15 and < v1.3
+***Note that this module does nto support terraform version 1.3 and above***
 
 #### Terraform providers
 
-- Azure provider
+- Azure provider >= 3.27.0
 
 ### Module dependencies
 
@@ -83,6 +84,25 @@ module "subnets" {
 }
 ```
 
+## Read Only Usage
+
+The module may be utilised in a read-only mode by setting provision=false.
+
+Doing so will cause the module to attempt to read an existing subnet that it is provided. Provide the resource group name, region, vnet name and subnet name in such circumstances to return the subnet details. ***Note that this method requires a single subnet name at a time***
+
+For example:
+```hcl-terraform
+module "subnet-query" {
+  source = "/home/richard/github/terraform-azure-subnets"
+
+  provision           = false
+  resource_group_name = module.resource_group.name
+  vnet_name           = module.vnet.name
+  region              = module.resource_group.region
+  subnet_name         = "test-subnet"
+}
+```
+
 ## Input Variables
 
 This module has the following input variables:
@@ -98,6 +118,7 @@ This module has the following input variables:
 | acl_rules | Optional | [] | List of rules to create and associate with the subent(s) |
 | service_endpoints | Optional | Microsoft.ContainerRegistry | List of service endpoints for the subnet(s)|
 | disable_private_link_endpoint_network_policies | Optional | false | Flag to disable private link endpoint network policies in the subnet(s) |
+| disable_private_link_service_network_policies | Optional | false | Flag to disable private link service network policies in the subnet(s) |
 
 ## Output Variables
 

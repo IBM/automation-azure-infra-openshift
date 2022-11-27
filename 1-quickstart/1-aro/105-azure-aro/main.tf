@@ -1,35 +1,36 @@
 module "cluster" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-aro?ref=v1.0.0"
+  source = "github.com/cloud-native-toolkit/terraform-azure-aro?ref=v2.0.0"
 
-  _count = var.cluster__count
-  auth_group_id = var.cluster_auth_group_id
-  client_id = var.client_id
   client_secret = var.client_secret
   disable_public_endpoint = var.cluster_disable_public_endpoint
-  disk_size = var.cluster_disk_size
-  flavor = var.cluster_flavor
+  encrypt = var.cluster_encrypt
+  fips = var.cluster_fips
+  key_vault_id = var.cluster_key_vault_id
   label = var.cluster_label
   master_flavor = var.cluster_master_flavor
   master_subnet_id = module.master-subnet.id
   name = var.cluster_name
   name_prefix = var.name_prefix
-  openshift_version = var.cluster_openshift_version
   os_type = var.cluster_os_type
+  pod_cidr = var.cluster_pod_cidr
   provision = var.cluster_provision
   pull_secret = var.pull_secret
   pull_secret_file = var.pull_secret_file
-  region = var.region
   resource_group_name = module.resource_group.name
-  subscription_id = var.subscription_id
-  tenant_id = var.tenant_id
+  service_cidr = var.cluster_service_cidr
+  tags = var.cluster_tags
   vnet_name = module.vnet.name
+  worker_count = var.cluster_worker_count
+  worker_disk_size = var.cluster_worker_disk_size
+  worker_flavor = var.cluster_worker_flavor
   worker_subnet_id = module.worker-subnet.id
 }
 module "master-subnet" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.8"
+  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.10"
 
   acl_rules = var.master-subnet_acl_rules == null ? null : jsondecode(var.master-subnet_acl_rules)
   disable_private_link_endpoint_network_policies = var.master-subnet_disable_private_link_endpoint_network_policies
+  disable_private_link_service_network_policies = var.master-subnet_disable_private_link_service_network_policies
   ipv4_cidr_blocks = var.master-subnet_ipv4_cidr_blocks == null ? null : jsondecode(var.master-subnet_ipv4_cidr_blocks)
   label = var.master-subnet_label
   provision = var.master-subnet_provision
@@ -61,10 +62,11 @@ module "vnet" {
   resource_group_name = module.resource_group.name
 }
 module "worker-subnet" {
-  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.8"
+  source = "github.com/cloud-native-toolkit/terraform-azure-subnets?ref=v1.3.10"
 
   acl_rules = var.worker-subnet_acl_rules == null ? null : jsondecode(var.worker-subnet_acl_rules)
   disable_private_link_endpoint_network_policies = var.worker-subnet_disable_private_link_endpoint_network_policies
+  disable_private_link_service_network_policies = var.worker-subnet_disable_private_link_service_network_policies
   ipv4_cidr_blocks = var.worker-subnet_ipv4_cidr_blocks == null ? null : jsondecode(var.worker-subnet_ipv4_cidr_blocks)
   label = var.worker-subnet_label
   provision = var.worker-subnet_provision

@@ -34,10 +34,10 @@ dependency "gitops" {
 }
 
 inputs = {
-  gitops_repo_host = dependency.gitops.outputs.gitops_host
-  gitops_repo_org = dependency.gitops.outputs.gitops_org
-  gitops_repo_repo = dependency.gitops.outputs.gitops_name
-  gitops_repo_project = dependency.gitops.outputs.gitops_project
-  gitops_repo_username = dependency.gitops.outputs.gitops_username
-  gitops_repo_token = dependency.gitops.outputs.gitops_token
+  gitops_repo_host = dependency.gitops.outputs.gitops_repo_config_host
+  gitops_repo_org = dependency.gitops.outputs.gitops_repo_config_org
+  gitops_repo_repo = dependency.gitops.outputs.gitops_repo_config_name
+  gitops_repo_project = dependency.gitops.outputs.gitops_repo_config_project
+  gitops_repo_username = dependency.gitops.outputs.gitops_repo_config_username
+  gitops_repo_token = dependency.gitops.outputs.gitops_repo_config_token
 }

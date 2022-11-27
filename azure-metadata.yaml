@@ -14,6 +14,24 @@ distributions:
     code: ipi
   - name: Azure Red Hat OpenShift
     code: aro
+cert_options:
+  - name: ACME LetsEncrypt
+    code: acme
+  - name: Bring your own TLS Certificates
+    code: byo
+git_hosts:
+  - name: Github
+    code: github.com
+  - name: Github Enterprise
+    code:
+  - name: Gitlab
+    code: 
+  - name: Bitbucket
+    code:
+  - name: Azure DevOps
+    code:
+  - name: Gitea
+    code: gitea
 regions:
   - name: South Africa North
     code: southafricanorth

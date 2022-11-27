@@ -30,21 +30,23 @@ This set of automation packages was generated using the open-source [`isacable`]
 
 1. Have access to an Azure subscription with "Owner" and "User Access Administrator" roles. The user must be able to create a service prinicpal.
 
-2. Configure an Azure DNS zone with a valid public domain (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
+2. Obtain a Red Hat [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret)
 
-3. Create a service principal to be used to create the cluster (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
-
-    If using ARO, note that there are additional permissions needed for the service principal (refer to the README [here](1-quickstart/1-aro/sp-setup.md) for more information)
-
-4. Obtain a Red Hat [OpenShift installer pull secret](https://console.redhat.com/openshift/install/pull-secret)
-
-5. (Optional) Install and start Colima to run the terraform tools in a local bootstrapped container image.
+3. (Optional) Install and start Colima to run the terraform tools in a local bootstrapped container image.
 
     On Mac with brew (note that this only works with Intel based Macs at this time):
     ```shell
     brew install docker colima
     colima start
     ```
+
+#### IPI Prerequisites
+
+1. Configure an Azure DNS zone with a valid public domain (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
+
+2. Create a service principal to be used to create the cluster (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
+
+    If using ARO, note that there are additional permissions needed for the service principal (refer to the README [here](1-quickstart/1-aro/sp-setup.md) for more information)
 
 ### Planning
 
@@ -61,16 +63,16 @@ This set of automation packages was generated using the open-source [`isacable`]
     ```shell
     cp credentials.template credentials.properties
     ```
-3. Provide values for the variables in **credentials.properties** (**Note:** `*.properties` has been added to **.gitignore** to ensure that the file containing the apikey cannot be checked into Git.)
-    - **TF_VAR_subscription_id** - The Azure subscription id where the cluster will be deployed
-    - **TF_VAR_tenant_id** - The Azure tenant id that owns the subscription
-    - **TF_VAR_client_id** - The id of the service principal with Owner and User Administrator access to the subscription for cluster creation
-    - **TF_VAR_client_secret** - The password of the service principal with Owner and User Administrator access to the subscription for cluster creation
+3. Provide values for the variables in **credentials.properties** (**Note:** `*.properties` has been added to **.gitignore** to ensure that the file containing the credentials cannot be checked into Git.)
+    - **TF_VAR_subscription_id** - (Optional) The Azure subscription id where the cluster will be deployed
+    - **TF_VAR_tenant_id** - (Optional) The Azure tenant id that owns the subscription
+    - **TF_VAR_client_id** - (Optional) The id of the service principal with Owner and User Administrator access to the subscription for cluster creation
+    - **TF_VAR_client_secret** - (Optional) The password of the service principal with Owner and User Administrator access to the subscription for cluster creation
     - **TF_VAR_pull_secret** - The contents of the Red Hat OpenShift pull secret
     - **TF_VAR_acme_registration_email** - (Optional) If using an auto-generated ingress certificate, this is the email address with which to register the certificate with LetsEncrypt.
     - **TF_VAR_testing** - This value is used to determine whether testing or staging variables should be utilised. Lease as `none` for production deployments. A value other than `none` will request in a non-production deployment.
     - **TF_VAR_portworx_spec** - A base64 encoded string of the Portworx specificatin yaml file. If left blank and using Portworx, ensure you specify the path to the Portworx specification yaml file in the `terraform.tfvars` file. For a Portworx implementation, either the `portworx_spec` or the `portworx_spec_file` values must be specified. If neither if specified, Portworx will not implement correctly.
-4. Run **./launch.sh**. This will start a container image with the prompt opened in the `/terraform` directory, pointed to the repo directory.
+4. Run **./launch.sh**. This will start a container image and can walk through the setup. If you do not select to setup the workspace, continue to the next step, otherwise, you can build straight from the launch script.
 5. Create a working copy of the terraform by running **./setup-workspace.sh**. The script makes a copy of the terraform in `/workspaces/current` and set up a "terraform.tfvars" file populated with default values. The script can be run interactively by just running **./setup-workspace.sh** or by providing command line parameters as specified below.
     ```
     Usage: setup-workspace.sh [-f FLAVOR] [-s STORAGE] [-c CERT_TYPE] [-r REGION] [-n PREFIX_NAME]

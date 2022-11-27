@@ -33,9 +33,9 @@ dependency "aro" {
 }
 
 inputs = {
-  server_url = dependency.aro.outputs.server_url
-  cluster_login_user = dependency.aro.outputs.username
-  cluster_login_password = dependency.aro.outputs.password
-  cluster_login_token= dependency.aro.outputs.token
+  server_url = dependency.aro.outputs.cluster_serverURL
+  cluster_login_user = dependency.aro.outputs.cluster_username
+  cluster_login_password = dependency.aro.outputs.cluster_password
+  cluster_login_token= dependency.aro.outputs.cluster_token
 }
 

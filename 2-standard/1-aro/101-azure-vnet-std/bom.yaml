@@ -24,7 +24,7 @@ spec:
             - 10.0.0.0/20
     - name: azure-vnet-subnets
       alias: master_subnet
-      version: v1.3.9
+      version: v1.3.10
       default: true
       variables:
         - name: label
@@ -42,7 +42,7 @@ spec:
           value: true
     - name: azure-vnet-subnets
       alias: worker_subnet
-      version: v1.3.9
+      version: v1.3.10
       variables:
         - name: label
           value: worker
@@ -55,7 +55,7 @@ spec:
             - Microsoft.Storage
     - name: azure-vnet-subnets
       alias: ingress_subnet
-      version: v1.3.9
+      version: v1.3.10
       variables:
         - name: label
           value: ingress

@@ -19,3 +19,9 @@
 ## name_prefix: The name of the vpc resource
 #name_prefix=""
 
+## pull_secret: The contents of the pull secret needed to access Red Hat content. The contents can either be provided directly or passed through the `pull_secret_file` variable
+#pull_secret=""
+
+## pull_secret_file: Name of the file containing the pull secret needed to access Red Hat content. The contents can either be provided in this file or directly via the `pull_secret` variable
+#pull_secret_file=""
+

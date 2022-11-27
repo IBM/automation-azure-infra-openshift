@@ -242,6 +242,11 @@ variable "ssh-keys_ecdsa_curve" {
   description = "ECDSA Curve value to be utilized for ECDSA key (P224, P256, P521, default = P224)"
   default = "P224"
 }
+variable "ssh-keys_tags" {
+  type = map(string)
+  description = "Extra tags to be added to the Azure Vault entry (default = none)"
+  default = {}
+}
 variable "vpn-server_private_network_cidrs" {
   type = string
   description = "List of CIDRs in the private network reachable via the VPN server."

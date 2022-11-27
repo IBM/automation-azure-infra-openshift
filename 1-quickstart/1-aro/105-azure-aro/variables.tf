@@ -19,18 +19,22 @@ variable "region" {
 variable "subscription_id" {
   type = string
   description = "the value of subscription_id"
+  default = null
 }
 variable "client_id" {
   type = string
   description = "the value of client_id"
+  default = null
 }
 variable "client_secret" {
   type = string
   description = "the value of client_secret"
+  default = null
 }
 variable "tenant_id" {
   type = string
   description = "the value of tenant_id"
+  default = null
 }
 variable "vnet_name" {
   type = string
@@ -101,6 +105,11 @@ variable "master-subnet_disable_private_link_endpoint_network_policies" {
   description = "Flag to disable private link endpoint network policies in the subnet."
   default = false
 }
+variable "master-subnet_disable_private_link_service_network_policies" {
+  type = bool
+  description = "Flag to disable private link service network policies in the subnet."
+  default = false
+}
 variable "worker-subnet_subnet_name" {
   type = string
   description = "The name of the subnet instance"
@@ -136,22 +145,22 @@ variable "worker-subnet_disable_private_link_endpoint_network_policies" {
   description = "Flag to disable private link endpoint network policies in the subnet."
   default = false
 }
-variable "cluster_openshift_version" {
-  type = string
-  description = "The version of the openshift cluster"
-  default = "4.8.11"
+variable "worker-subnet_disable_private_link_service_network_policies" {
+  type = bool
+  description = "Flag to disable private link service network policies in the subnet."
+  default = false
 }
 variable "cluster_master_flavor" {
   type = string
   description = "The size of the VMs for the master nodes"
   default = "Standard_D8s_v3"
 }
-variable "cluster_flavor" {
+variable "cluster_worker_flavor" {
   type = string
   description = "The size of the VMs for the worker nodes"
   default = "Standard_D4s_v3"
 }
-variable "cluster__count" {
+variable "cluster_worker_count" {
   type = number
   description = "The number of compute worker nodes"
   default = 3
@@ -171,17 +180,12 @@ variable "cluster_name" {
   description = "The name of the ARO cluster. If empty the name will be derived from the name prefix"
   default = ""
 }
-variable "cluster_auth_group_id" {
-  type = string
-  description = "The id of the auth group for cluster admins"
-  default = ""
-}
 variable "cluster_disable_public_endpoint" {
   type = bool
   description = "Flag to make the cluster private only"
   default = false
 }
-variable "cluster_disk_size" {
+variable "cluster_worker_disk_size" {
   type = number
   description = "The size in GB of the disk for each worker node"
   default = 128
@@ -200,4 +204,34 @@ variable "cluster_label" {
   type = string
   description = "The label used to generate the cluster name"
   default = "cluster"
+}
+variable "cluster_key_vault_id" {
+  type = string
+  description = "THe Azure id of an existing key vault to use to store ARO Service Principal credentials (default = \"\")"
+  default = ""
+}
+variable "cluster_encrypt" {
+  type = bool
+  description = "Flag to encrypt the VM disks (default = false)"
+  default = false
+}
+variable "cluster_pod_cidr" {
+  type = string
+  description = "CIDR for the POD subnet (default = \"10.128.0.0/14\")"
+  default = "10.128.0.0/14"
+}
+variable "cluster_service_cidr" {
+  type = string
+  description = "CIDR for the services subnet (default = \"172.30.0.0/16\")"
+  default = "172.30.0.0/16"
+}
+variable "cluster_fips" {
+  type = bool
+  description = "Flag to determine if FIPS validated modules should be utilized (default = false)"
+  default = false
+}
+variable "cluster_tags" {
+  type = map(string)
+  description = "List of tags to be included as \"name\":\"value\" pairs (default = {})"
+  default = {}
 }
