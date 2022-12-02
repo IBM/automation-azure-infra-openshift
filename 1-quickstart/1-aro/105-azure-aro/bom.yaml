@@ -35,6 +35,10 @@ spec:
           value:
             - Microsoft.ContainerRegistry
             - Microsoft.Storage
+        - name: disable_private_link_endpoint_network_policies
+          value: true
+        - name: disable_private_link_service_network_policies
+          value: true 
     - name: azure-vnet-subnets
       alias: worker-subnet
       version: v1.3.10
