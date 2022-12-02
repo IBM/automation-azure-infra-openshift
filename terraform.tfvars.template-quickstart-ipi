@@ -17,10 +17,10 @@ region="REGION"
 openshift_version="4.8.42"
 
 ## The number of worker nodes to create
-worker_node_qty=3
+worker_node_qty=NODE_QTY
 
 ## The type of worker nodes to create
-worker_node_type="Standard_D4s_v3"
+worker_node_type="WORKER"
 
 ######################
 ####  Portworx storage
