@@ -132,3 +132,55 @@ regions:
   - name: West US 3
     code: westus3
     area: US
+worker_types:
+  - name: Standard v3 4 vCPU 16GiB RAM
+    code: Standard_D4s_v3
+    series: D-Series v3
+  - name: Standard v3 8 vCPU 32GiB RAM
+    code: Standard_D8s_v3
+    series: D-Series v3
+  - name: Standard v3 16 vCPU 64GiB RAM
+    code: Standard_D16s_v3
+    series: D-Series v3
+  - name: Standard v3 32 vCPU 128GiB RAM
+    code: Standard_D32s_v3
+    series: D-Series v3
+  - name: Standard v4 4 vCPU 16GiB RAM
+    code: Standard_D4as_v4
+    series: D-Series v4
+  - name: Standard v4 8 vCPU 32GiB RAM
+    code: Standard_D8as_v4
+    series: D-Series v4
+  - name: Standard v4 16 vCPU 64GiB RAM
+    code: Standard_D16as_v4
+    series: D-Series v4
+  - name: Standard v4 32 vCPU 128GiB RAM
+    code: Standard_D32as_v4
+    series: D-Series v4
+  - name: Compute optimized 4 vCPU 8GiB RAM
+    code: Standard_F4s_v2
+    series: F-Series v2
+  - name: Compute optimized 8 vCPU 16GiB RAM
+    code: Standard_F8s_v2
+    series: F-Series v2
+  - name: Compute optimized 16 vCPU 32GiB RAM
+    code: Standard_F16s_v2
+    series: F-Series v2
+  - name: Compute optimized 32 vCPU 64GiB RAM
+    code: Standard_F32s_v2
+    series: F-Series v2
+  - name: Memory optimized 4 vCPU 32GiB RAM
+    code: Standard_E4s_v3
+    series: E-Series v3
+  - name: Memory optimized 8 vCPU 64GiB RAM
+    code: Standard_E8s_v3
+    series: E-Series v3
+  - name: Memory optimized 16 vCPU 128GiB RAM
+    code: Standard_E16s_v3
+    series: E-Series v3
+  - name: Memory optimized 32 vCPU 256GiB RAM
+    code: Standard_E32s_v3
+    series: E-Series v3
+  - name: Other (Specify next)
+    code: other
+    series: other

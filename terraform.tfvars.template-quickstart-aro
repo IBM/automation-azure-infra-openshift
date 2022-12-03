@@ -1,20 +1,20 @@
 ## OpenShift Cluster Prefix
-cluster_name="PREFIXqs"
+cluster_name="PREFIX-qs"
 
 ## Name prefix for VNet and other components
 name_prefix="PREFIX"
 
 ## Resource group name for the networking components
-resource_group_name="PREFIXrg"
+resource_group_name="PREFIX-rg"
 
 ## Azure region into which to deploy
 region="REGION"
 
 ## The number of worker nodes to create
-cluster_worker_count=3
+cluster_worker_count=NODE_QTY
 
 ## The type of worker nodes to create
-cluster_worker_flavor="Standard_D4s_v3"
+cluster_worker_flavor="WORKER"
 
 ######################
 ####  Portworx storage

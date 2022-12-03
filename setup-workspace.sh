@@ -3,6 +3,9 @@
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
 
+WORKER_TYPE="Standard_D4s_v3"
+NODE_QTY="3"
+
 INTERACT=0
 
 function usage()
@@ -67,8 +70,8 @@ function menu() {
         read -r input
         if [[ -z $input ]]; then
             break
-        elif [[ $input < 1 ]] || [[ $input > $numItems ]]; then
-          echo "Invalid Selection. Enter numnber next to item." >&2
+        elif (( input < 1 )) || (( input > numItems )); then
+          echo "Invalid Selection. Enter number next to item." >&2
           continue
         fi
         break
@@ -84,6 +87,8 @@ function interact() {
   local DEFAULT_DIST="aro"
   local DEFAULT_CERT="acme"
   local DEFAULT_STORAGE="default"
+  local DEFAULT_NODE_QTY=3
+  local DEFAULT_WORKER_TYPE="Standard_D4s_v3"
   local DEFAULT_REGION="australiaeast"
   local DEFAULT_BANNER="$DEFAULT_FLAVOR"
   local DEFAULT_GITHOST="gitea"
@@ -171,6 +176,52 @@ function interact() {
     CERT=""
   fi
 
+  # Get worker node type
+  echo
+  read -r -d '' -a WORKER_TYPES < <(yq '.worker_types[].name' $METADATA_FILE )
+  PS3="Select the worker node type [$DEFAULT_WORKER_TYPE]: "
+  type=$(menu "${WORKER_TYPES[@]}")
+  case $type in
+    '') WORKER_TYPE="$DEFAULT_WORKER_TYPE"; ;;
+     *) WORKER_TYPE="$(yq ".worker_types[] | select(.name == \"$type\") | .code" $METADATA_FILE)"; ;;
+  esac
+  if [[ $WORKER_TYPE == "other" ]]; then
+    WORKER_TYPE=""
+    while [[ -z $WORKER_TYPE ]]; do
+      echo
+      echo -n -e "Enter worker type [$DEFAULT_WORKER_TYPE]: "
+      read type_input
+
+      if [[ -n $type_input ]]; then
+        if [[ ! $type_input =~ [^a-zA-Z0-9_] ]]; then
+          WORKER_TYPE=$type_input
+        else
+          echo "Invalid worker type. Worker types can only contain alphanumeric and underscore characters."
+        fi
+      elif [[ -z $type_input ]]; then
+        WORKER_TYPE="$DEFAULT_WORKER_TYPE"
+      fi
+    done    
+  fi
+
+  # Get number of worker nodes
+  while [[ -z $NODES ]]; do
+    echo
+    echo -n -e "Enter the number of worker nodes [$DEFAULT_NODE_QTY]: "
+    read node_qty
+
+    if [[ -n $node_qty ]]; then
+      if (( node_qty > 1 )) && (( node_qty <= 60 )); then
+        NODES="$node_qty"
+      else
+        echo "Invalid quantity. Must be between 2 and 60."
+      fi
+    elif [[ -z $node_qty ]]; then
+      NODES="$DEFAULT_NODE_QTY"
+    fi
+  done
+  NODE_QTY="$NODES"
+
   # Get name prefix
   local name=""
   chars=abcdefghijklmnopqrstuvwxyz0123456789
@@ -212,9 +263,18 @@ function interact() {
   esac
 
   if [[ -z $GIT_HOST_CODE ]]; then
-    echo
-    echo -n "Please enter hostname for $githost : "
-    read GIT_HOST
+    GIT_HOST=""
+    while [[ -z $GIT_HOST ]]; do
+      echo
+      echo -n "Please enter hostname for $githost : "
+      read hostname
+
+      if [[ -n $hostname ]] && [[ ! $hostname =~ [^a-zA-Z0-9_-.] ]]; then
+        GIT_HOST="$hostname"
+      else
+        echo "Invalid hostname. Please enter a valid hostname for $githost"
+      fi
+    done
   elif [[ $GIT_HOST_CODE == "gitea" ]]; then
     GIT_HOST=""
   else
@@ -238,6 +298,8 @@ function interact() {
   echo "Region/Location       = $REGION"
   echo "Distribution          = $DIST"
   echo "Storage               = $STORAGE"
+  echo "Worker Node Flavor    = $WORKER_TYPE"
+  echo "Worker Nodes          = $NODE_QTY"
   echo "Name Prefix           = $PREFIX_NAME"
   if [[ $DIST == "ipi" ]]; then
     echo "Ingress Certificate   = $CERT"
@@ -254,7 +316,7 @@ function interact() {
 
   if [[ ${confirm^} != "Y" ]]; then
     echo "Exiting without setting up environment" >&2
-    touch /terraform/.stop
+    touch ${SCRIPT_DIR}/.stop
     exit 1
   fi
 
@@ -438,7 +500,9 @@ fi
 cat "${SCRIPT_DIR}/terraform.tfvars.template-${FLAVOR,,}-${DIST}" | \
   sed "s/PREFIX/${PREFIX_NAME}/g" | \
   sed "s/BANNER/${BANNER}/g" | \
-  sed "s/REGION/${REGION}/g" \
+  sed "s/REGION/${REGION}/g" | \
+  sed "s/WORKER/${WORKER_TYPE}/g" | \
+  sed "s/NODE_QTY/${NODE_QTY}/g" \
   > "${WORKSPACE_DIR}/cluster.tfvars"
 
 if [[ ! -f "${WORKSPACE_DIR}/gitops.tfvars" ]]; then

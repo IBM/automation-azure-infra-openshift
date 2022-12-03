@@ -103,12 +103,12 @@ variable "master-subnet_service_endpoints" {
 variable "master-subnet_disable_private_link_endpoint_network_policies" {
   type = bool
   description = "Flag to disable private link endpoint network policies in the subnet."
-  default = false
+  default = true
 }
 variable "master-subnet_disable_private_link_service_network_policies" {
   type = bool
   description = "Flag to disable private link service network policies in the subnet."
-  default = false
+  default = true
 }
 variable "worker-subnet_subnet_name" {
   type = string
