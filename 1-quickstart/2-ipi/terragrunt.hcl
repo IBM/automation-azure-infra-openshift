@@ -22,7 +22,7 @@ retryable_errors = [
   "(?s).*Error.*Error logging in to.*",
   "(?s).*Error creating repo.*",
   "(?s).*read: connection reset by peer.*",
-  "(?s).x509: certificate signed by unknown authority.*",
+  "(?s).x509: certificate signed by unknown*",
   "(?s).argocd-bootstrap.sh.*"
 ]
 

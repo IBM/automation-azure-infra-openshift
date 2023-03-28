@@ -22,7 +22,7 @@ retryable_errors = [
   "(?s).*Error.*Error logging in to.*",
   "(?s).*Error creating repo.*",
   "(?s).*Error: Kubernetes cluster unreachable.*",
-  "(?s).*x509: certificate signed by unknown authority.*",
+  "(?s).*x509: certificate signed by unknown*",
   "(?s).*argocd-bootstrap.sh.*",
   "(?s).*wait_for_gitea_operator_deployment*"
 ]
