@@ -5,7 +5,8 @@ name: Verify Schedule
 on:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '30 7 * * 2'
+    #- cron:  '30 7 * * 2'
+    - cron: '0 19 15 * *'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
