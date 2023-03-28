@@ -19,18 +19,22 @@ variable "region" {
 variable "subscription_id" {
   type = string
   description = "the value of subscription_id"
+  default = null
 }
 variable "client_id" {
   type = string
   description = "the value of client_id"
+  default = null
 }
 variable "client_secret" {
   type = string
   description = "the value of client_secret"
+  default = null
 }
 variable "tenant_id" {
   type = string
   description = "the value of tenant_id"
+  default = null
 }
 variable "vnet_name" {
   type = string

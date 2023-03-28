@@ -45,8 +45,8 @@ jobs:
           - aro
           - ipi
         storage:
-          #- default
-          - portworx
+          - default
+          #- portworx
         certificate:
           - acme
         region:
