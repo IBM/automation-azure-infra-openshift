@@ -224,8 +224,10 @@ function interact() {
 
   # Get name prefix
   local name=""
+  letter1=abcdefghijklmnopqrstuvwxyz
   chars=abcdefghijklmnopqrstuvwxyz0123456789
-  for i in {1..5}; do
+  name=${letter1:RANDOM%${#letter1}:1}
+  for i in {1..4}; do
       name+=${chars:RANDOM%${#chars}:1}
   done
 
@@ -476,11 +478,13 @@ echo "*****"
 if [[ -n "${PREFIX_NAME}" ]]; then
   PREFIX_NAME="${PREFIX_NAME}"
 else
+  letter1=abcdefghijklmnopqrstuvwxyz
   chars=abcdefghijklmnopqrstuvwxyz0123456789
-  for i in {1..5}; do
+  NAME=${letter1:RANDOM%${#letter1}:1}
+  for i in {1..4}; do
       NAME+=${chars:RANDOM%${#chars}:1}
   done
-  echo "Enter name prefix (default = ${NAME}):"
+  echo -n "Enter name prefix (default = ${NAME}): "
   read INPUT_NAME
   if [[ -n $INPUT_NAME ]]; then
     PREFIX_NAME="${INPUT_NAME}"
