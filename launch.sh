@@ -30,28 +30,28 @@ if [[ ! -d "${SRC_DIR}" ]]; then
 fi
 
 # check if colima is installed, and apply dns override if no override file already exists
-if command -v colima &> /dev/null
-then
-  if [ ! -f ~/.lima/_config/override.yaml ] || [ -z "$(cat ~/.lima/_config/override.yaml | grep "$PROVIDER_DNS" 2> /dev/null )" ]; then
-    echo "applying colima dns override for $PROVIDER_DNS..."
+# if command -v colima &> /dev/null
+# then
+#   if [ ! -f ~/.lima/_config/override.yaml ] || [ -z "$(cat ~/.lima/_config/override.yaml | grep "$PROVIDER_DNS" 2> /dev/null )" ]; then
+#     echo "applying colima dns override for $PROVIDER_DNS..."
 
-    COLIMA_STATUS="$(colima status 2>&1)"
-    SUB='colima is running'
-    if [[ "$COLIMA_STATUS" == *"$SUB"* ]]; then
-      echo "stopping colima"
-      colima stop
-    fi
+#     COLIMA_STATUS="$(colima status 2>&1)"
+#     SUB='colima is running'
+#     if [[ "$COLIMA_STATUS" == *"$SUB"* ]]; then
+#       echo "stopping colima"
+#       colima stop
+#     fi
 
-    echo "writing ~/.lima/_config/override.yaml"
-    mkdir -p ~/.lima/_config
-    printf "useHostResolver: false\ndns:\n- $PROVIDER_DNS" > ~/.lima/_config/override.yaml
+#     echo "writing ~/.lima/_config/override.yaml"
+#     mkdir -p ~/.lima/_config
+#     printf "useHostResolver: false\ndns:\n- $PROVIDER_DNS" > ~/.lima/_config/override.yaml
 
-    if [[ "$COLIMA_STATUS" == *"$SUB"* ]]; then
-      echo "restarting colima"
-      colima start
-    fi
-  fi
-fi
+#     if [[ "$COLIMA_STATUS" == *"$SUB"* ]]; then
+#       echo "restarting colima"
+#       colima start
+#     fi
+#   fi
+# fi
 
 ${DOCKER_CMD} kill ${CONTAINER_NAME} 1> /dev/null 2> /dev/null
 ${DOCKER_CMD} rm ${CONTAINER_NAME} 1> /dev/null 2> /dev/null
