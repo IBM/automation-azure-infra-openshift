@@ -21,8 +21,8 @@ jobs:
       GITOPS_USERNAME: ${{ secrets.GITOPS_USERNAME }}
       GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
 
-  release:
-    needs: [verify]
-    uses: cloud-native-toolkit/action-workflows/.github/workflows/release-module.yaml@v1
-    secrets:
-      TOKEN: ${{ secrets.TOKEN }}
+  #release:
+  #  needs: [verify]
+  #  uses: cloud-native-toolkit/action-workflows/.github/workflows/release-module.yaml@v1
+  #  secrets:
+  #    TOKEN: ${{ secrets.TOKEN }}
