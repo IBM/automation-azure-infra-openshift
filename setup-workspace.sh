@@ -101,7 +101,6 @@ function interact() {
   local DEFAULT_WORKER_TYPE="Standard_D4s_v3"
   local DEFAULT_REGION="australiaeast"
   local DEFAULT_BANNER="$DEFAULT_FLAVOR"
-  local DEFAULT_GITHOST="gitea"
   local MAX_PREFIX_LENGTH=5
   local MAX_BANNER_LENGTH=25
 
@@ -207,6 +206,8 @@ function interact() {
       '') DOMAIN="${DOMAIN_OPTIONS[0]}"; ;;
       *) DOMAIN="$domain"; ;;
     esac
+
+    DNS_RESOURCE_GROUP=$(az network dns zone list -o json | jq -r ".[] | select (.name == \"$DOMAIN\") | .resourceGroup")
   fi
 
   # Get worker node type
@@ -288,6 +289,11 @@ function interact() {
   fi
 
   # Get git host
+  if [[ $DIST == "ipi" ]]; then
+    DEFAULT_GITHOST="github.com"
+  else
+    DEFAULT_GITHOST="gitea"
+  fi
   echo
   read -r -d '' -a GIT_HOST_OPTIONS < <(yq ".git_hosts[].name" $METADATA_FILE)
   PS3="Select GitOps Host Type [$(yq ".git_hosts[] | select(.code == \"$DEFAULT_GITHOST\") | .name" $METADATA_FILE)]: "
@@ -311,7 +317,12 @@ function interact() {
       fi
     done
   elif [[ $GIT_HOST_CODE == "gitea" ]]; then
-    GIT_HOST=""
+    if [[ $DIST == "ipi" ]]; then
+      echo "Gitea is not support with IPI. "
+      exit 1
+    else
+      GIT_HOST=""
+    fi
   else
     GIT_HOST=$GIT_HOST_CODE
   fi
