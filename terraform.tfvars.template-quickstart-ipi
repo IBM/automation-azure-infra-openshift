@@ -2,10 +2,10 @@
 cluster_name="PREFIXqs"
 
 ## Resource group name containing the base domain name
-resource_group_name="ocp-domain"
+resource_group_name="DNS_RESOURCE_GROUP"
 
 ## Base domain name (e.g. myclusters.mydomain.com)
-base_domain_name="ocp-azure.ibm-software-everywhere.dev"
+base_domain_name="DOMAIN"
 
 ## Azure region into which to deploy
 region="REGION"

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# 
+# For the interactive portion, the az & yq cli tools must be in the shell path
+# and the Azure cli must be logged in
+#
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd -P)
 METADATA_FILE="${SCRIPT_DIR}/azure-metadata.yaml"
@@ -18,6 +22,8 @@ function usage()
    echo "  -d     OpenShift distribution (aro, ipi). IPI is currently only available with quickstart."
    echo "  -s     the storage option to use (portworx or default)"
    echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
+   echo "  -z     domain name for IPI distributions"
+   echo "  -e     resource grop that contains the DNS zone for IPI distributions."
    echo "  -n     (optional) prefix that should be used for all variables"
    echo "  -r     (optional) the region where the infrastructure will be provisioned"
    echo "  -b     (optional) the banner text that should be shown at the top of the cluster"
@@ -28,21 +34,25 @@ function usage()
 }
 
 # Get the options
-while getopts ":f:d:s:c:n:r:b:g:hi" option; do
+while getopts ":f:d:s:c:z:e:n:r:b:g:hi" option; do
    case $option in
       h) # display Help
          usage
          exit 1;;
       i) # Interactive mode
          INTERACT=1;;
-      f) # Enter a name
+      f) # Enter a flavor
          FLAVOR=$OPTARG;;
-      d) # Enter a name
+      d) # Enter a distribution
          DIST=$OPTARG;;
-      s) # Enter a name
+      s) # Enter a storage option
          STORAGE=$OPTARG;;
       c) # Enter a name
          CERT=$OPTARG;;
+      z) # Enter the domain name
+         DOMAIN=$OPTARG;;
+      e) # Enter the resource group for the DNS zone
+         DNS_RESOURCE_GROUP=$OPTARG;;
       n) # Enter a name
          PREFIX_NAME=$OPTARG;;
       r) # Enter a name
@@ -100,6 +110,12 @@ function interact() {
   if [[ -z "$(which yq)"  ]]; then
     echo "ERROR: yq not found. yq is required for interactive mode."
     echo "If yq is intalled, please ensure it is included in the PATH environment variable."
+    exit 1;
+  fi
+
+  if [[ -z "$(which az)" ]]; then
+    echo "ERROR: az cli not found. az cli is required for interactive mode."
+    echi "If the az cli is installed, please ensure it is included in the PATH environment variable."
     exit 1;
   fi
 
@@ -174,6 +190,23 @@ function interact() {
     esac
   else
     CERT=""
+  fi
+
+  # Get domain name (if IPI)
+  if [[ "${DIST}" == "ipi" ]]; then
+    echo
+    read -r -d '' -a DOMAIN_OPTIONS < <(az network dns zone list -o json --query [].name -o tsv)
+    if (( ${#DOMAIN_OPTIONS[@]} == 0 )); then
+      echo "ERROR: No DNS zones available in subscription"
+      echo "Please create a DNS zone for IPI usage per documentation"
+      exit 1
+    fi
+    PS3="Select the domain for the IPI instance [${DOMAIN_OPTIONS[0]}]: "
+    domain=$(menu "${DOMAIN_OPTIONS[@]}")
+    case $domain in
+      '') DOMAIN="${DOMAIN_OPTIONS[0]}"; ;;
+      *) DOMAIN="$domain"; ;;
+    esac
   fi
 
   # Get worker node type
@@ -305,6 +338,7 @@ function interact() {
   echo "Name Prefix           = $PREFIX_NAME"
   if [[ $DIST == "ipi" ]]; then
     echo "Ingress Certificate   = $CERT"
+    echo "Domain                = $DOMAIN"
   fi
   echo "GitOps Host           = $GIT_HOST"
   echo "Console Banner Title  = $BANNER"
@@ -456,6 +490,16 @@ if [[ "${DIST}" == "ipi" ]]; then
       fi
     done
   fi
+
+  if [[ -z $DOMAIN ]]; then
+    echo -n "Enter the domain to use: "
+    read DOMAIN
+  fi
+
+  if [[ -z $DNS_RESOURCE_GROUP ]]; then
+    echo -n "Enter the resource group for the DNS zone $DOMAIN: "
+    read DNS_RESOURCE_GROUP
+  fi
 fi
 
 WORKSPACES_DIR="${SCRIPT_DIR}/../workspaces"
@@ -506,7 +550,9 @@ cat "${SCRIPT_DIR}/terraform.tfvars.template-${FLAVOR,,}-${DIST}" | \
   sed "s/BANNER/${BANNER}/g" | \
   sed "s/REGION/${REGION}/g" | \
   sed "s/WORKER/${WORKER_TYPE}/g" | \
-  sed "s/NODE_QTY/${NODE_QTY}/g" \
+  sed "s/NODE_QTY/${NODE_QTY}/g" | \
+  sed "s/DOMAIN/${DOMAIN}/g" | \
+  sed "s/DNS_RESOURCE_GROUP/${DNS_RESOURCE_GROUP}/g" \
   > "${WORKSPACE_DIR}/cluster.tfvars"
 
 if [[ ! -f "${WORKSPACE_DIR}/gitops.tfvars" ]]; then

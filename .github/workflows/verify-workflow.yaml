@@ -51,6 +51,10 @@ jobs:
           - acme
         region:
           - eastus
+        domain:
+          - ocp-azure.ibm-software-everywhere.dev
+        dns_zone:
+          - ocp-domain
       fail-fast: false
 
     env:
@@ -102,7 +106,7 @@ jobs:
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
           if [[ ${{ matrix.flavor }} == "quickstart" ]]; then
             echo "Building an IPI cluster in ${{ matrix.flavor }} architecture."
-            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
+            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com" -z ${{ matrix.domain }} -e ${{ matrix.dns_zone }}
             cd ../workspaces/current
             
             echo ""
