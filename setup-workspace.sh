@@ -23,7 +23,7 @@ function usage()
    echo "  -s     the storage option to use (portworx or default)"
    echo "  -c     certificate to use (acme or byo) - only applicable for IPI distributions."
    echo "  -z     domain name for IPI distributions"
-   echo "  -e     resource grop that contains the DNS zone for IPI distributions."
+   echo "  -e     resource group that contains the DNS zone for IPI distributions."
    echo "  -n     (optional) prefix that should be used for all variables"
    echo "  -r     (optional) the region where the infrastructure will be provisioned"
    echo "  -b     (optional) the banner text that should be shown at the top of the cluster"
