@@ -43,13 +43,16 @@ This set of automation packages was generated using the open-source [`iascable`]
     colima start
     ```
 
+#### ARO Prerequisites
+
+1. (Optional) Create a service principal. If you do not create a service principal, you will need to sign in through a browser during the interactive workspace setup.
+    refer to the README [here](1-quickstart/1-aro/sp-setup.md) for more information
+
 #### IPI Prerequisites
 
 1. Configure an Azure DNS zone with a valid public domain (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
 
 2. Create a service principal to be used to create the cluster (refer to the README [here](1-quickstart/2-ipi/README.md) for more information)
-
-    If using ARO, note that there are additional permissions needed for the service principal (refer to the README [here](1-quickstart/1-aro/sp-setup.md) for more information)
 
 ### Planning
 
