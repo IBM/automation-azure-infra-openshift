@@ -63,7 +63,7 @@ jobs:
       TF_VAR_acme_registration_email: ${{ secrets.ACME_EMAIL_SECRET }}
       TF_VAR_testing: staging
       TF_VAR_portworx_spec: ${{ secrets.PX_SPEC }}
-      DOMAIN: "ocp-azure.ibm-software-everywhere.dev"
+      DOMAIN: "ibmeebpazure.net"
       DNS_RESOURCE_GROUP: "ocp-domain"
 
     outputs:
