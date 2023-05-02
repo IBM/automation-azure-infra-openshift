@@ -1,11 +1,12 @@
 module "argocd-bootstrap" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-argocd-bootstrap?ref=v1.12.0"
+  source = "github.com/cloud-native-toolkit/terraform-tools-argocd-bootstrap?ref=v1.13.1"
 
   bootstrap_path = module.gitops_repo.bootstrap_path
   bootstrap_prefix = var.argocd-bootstrap_bootstrap_prefix
   cluster_config_file = module.cluster.config_file_path
   cluster_type = module.cluster.platform.type_code
   create_webhook = var.argocd-bootstrap_create_webhook
+  git_ca_cert = module.gitops_repo.config_ca_cert
   git_token = module.gitops_repo.config_token
   git_username = module.gitops_repo.config_username
   gitops_repo_url = module.gitops_repo.config_repo_url
@@ -16,7 +17,7 @@ module "argocd-bootstrap" {
   sealed_secret_private_key = module.sealed-secret-cert.private_key
 }
 module "cluster" {
-  source = "github.com/cloud-native-toolkit/terraform-ocp-login?ref=v1.6.0"
+  source = "github.com/cloud-native-toolkit/terraform-ocp-login?ref=v1.6.2"
 
   ca_cert = var.cluster_ca_cert
   ca_cert_file = var.cluster_ca_cert_file
@@ -41,7 +42,7 @@ module "config" {
   server_name = module.gitops_repo.server_name
 }
 module "gitea" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-gitea?ref=v0.5.0"
+  source = "github.com/cloud-native-toolkit/terraform-tools-gitea?ref=v0.5.1"
 
   ca_cert = module.cluster.ca_cert
   ca_cert_file = var.gitea_ca_cert_file
@@ -55,14 +56,14 @@ module "gitea" {
   username = var.gitea_username
 }
 module "gitea_namespace" {
-  source = "github.com/cloud-native-toolkit/terraform-k8s-namespace?ref=v3.2.4"
+  source = "github.com/cloud-native-toolkit/terraform-k8s-namespace?ref=v3.2.5"
 
   cluster_config_file_path = module.cluster.config_file_path
   create_operator_group = var.gitea_namespace_create_operator_group
   name = var.gitea_namespace_name
 }
 module "gitops_repo" {
-  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.23.1"
+  source = "github.com/cloud-native-toolkit/terraform-tools-gitops?ref=v1.23.3"
 
   branch = var.gitops_repo_branch
   debug = var.debug
@@ -95,11 +96,9 @@ module "gitops-console-link-job" {
   tls_secret_name = var.gitops-console-link-job_tls_secret_name
 }
 module "olm" {
-  source = "github.com/cloud-native-toolkit/terraform-k8s-olm?ref=v1.3.5"
+  source = "github.com/cloud-native-toolkit/terraform-k8s-olm?ref=v2.0.1"
 
   cluster_config_file = module.cluster.config_file_path
-  cluster_type = module.cluster.platform.type_code
-  cluster_version = module.cluster.platform.version
 }
 module "sealed-secret-cert" {
   source = "github.com/cloud-native-toolkit/terraform-util-sealed-secret-cert?ref=v1.0.1"
@@ -122,7 +121,7 @@ module "toolkit_namespace" {
 }
 module "util-clis" {
   source = "cloud-native-toolkit/clis/util"
-  version = "1.18.1"
+  version = "1.19.0"
 
   bin_dir = var.util-clis_bin_dir
   clis = var.util-clis_clis == null ? null : jsondecode(var.util-clis_clis)

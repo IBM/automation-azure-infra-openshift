@@ -36,3 +36,4 @@ px-spec.yaml
 **/certs/*
 
 .stop
+.ignore

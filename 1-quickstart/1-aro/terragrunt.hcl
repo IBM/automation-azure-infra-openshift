@@ -24,7 +24,8 @@ retryable_errors = [
   "(?s).*Error: Kubernetes cluster unreachable.*",
   "(?s).*x509: certificate signed by unknown*",
   "(?s).*argocd-bootstrap.sh.*",
-  "(?s).*wait_for_gitea_operator_deployment*"
+  "(?s).*wait_for_gitea_operator_deployment*",
+  "(?s).*Error Message: ibmcloud release not found*"
 ]
 
 retry_sleep_interval_sec = 60

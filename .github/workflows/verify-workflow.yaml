@@ -63,6 +63,8 @@ jobs:
       TF_VAR_acme_registration_email: ${{ secrets.ACME_EMAIL_SECRET }}
       TF_VAR_testing: staging
       TF_VAR_portworx_spec: ${{ secrets.PX_SPEC }}
+      DOMAIN: "ibmeebpazure.net"
+      DNS_RESOURCE_GROUP: "ocp-domain"
 
     outputs:
       status: ${{ job.status }}
@@ -74,12 +76,15 @@ jobs:
 
       - name: Terraform Apply (ARO) - ${{ matrix.flavor }},${{ matrix.storage }}
         if: matrix.dist == 'aro'
+        env:
+          TF_VAR_gitops_repo_username: ${{ secrets.GITOPS_USERNAME }}
+          TF_VAR_gitops_repo_token: ${{ secrets.GITOPS_TOKEN }}
         run: |
           RANDOM_PREFIX=$(cat /dev/urandom | tr -dc '[:alpha:]' | tr '[:upper:]' '[:lower:]' | fold -w ${1:-5} | head -n 1)
           FLAVOR_CHAR=$(echo "${{ matrix.flavor }}" | fold -w ${1:-1} | head -n 1)
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
           echo "Building an ARO cluster in ${{ matrix.flavor }} architecture."
-          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }}
+          ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -g "github.com" -r ${{ matrix.region }}
           cd ../workspaces/current
           
           echo ""
@@ -102,7 +107,7 @@ jobs:
           STORAGE_CHAR=$(echo "${{ matrix.storage }}" | fold -w ${1:-1} | head -n 1)
           if [[ ${{ matrix.flavor }} == "quickstart" ]]; then
             echo "Building an IPI cluster in ${{ matrix.flavor }} architecture."
-            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com"
+            ./setup-workspace.sh -f ${{ matrix.flavor }} -d ${{ matrix.dist }} -c ${{ matrix.certificate }} -s ${{ matrix.storage }} -n "${FLAVOR_CHAR}${STORAGE_CHAR}-${RANDOM_PREFIX}" -r ${{ matrix.region }} -g "github.com" -z ${DOMAIN} -e ${DNS_RESOURCE_GROUP}
             cd ../workspaces/current
             
             echo ""

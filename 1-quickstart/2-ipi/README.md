@@ -77,7 +77,18 @@ The automation is delivered in a number of layers that are applied in order. Lay
 2. Install [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
     This is required to setup the service principal per the below instructions, not to deploy OpenShift. So if you already have a service principal or create the service principal via the Azure portal, than the Azure CLI is not required.
 
-3. [Configure Azure DNS](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/dnszone.md).
+3a. Azure domain 
+    1. Buy or have existing `App Service Domain`. This should also have created a DNS zone in the same subscription. 
+    2. In order to delete a cluster, remove the Locks from the created DNS Zone
+        To do so,
+        1. Navigate to the resource group that contains the DNS Zone
+        2. Open the DNS Zone associated with the purchased domain
+        3. From the left hand menu, select `Locks` 
+        4. Delete any locks present.
+
+3b. External domain
+    [Configure Azure DNS](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/dnszone.md).
+    If you are using a domain from a third party outside Azure, follow these instructions.
    1. Buy or have an existing domain
    1. Decide on a subdomain of the existing domain (for example ocp.azure)
    1. Create a new resource group in your Azure subscription
@@ -91,11 +102,16 @@ The automation is delivered in a number of layers that are applied in order. Lay
     ![domain-delegation](domain-delegation.png)
 
 4. [Create a Service Principal](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/credentials.md) with proper IAM roles.
-    1. Create the service principal account if it does not already exist:
+    1. Create the service principal account if it does not already exist (make sure you are logged into the az cli first):
         ```shell
-         az ad sp create-for-rbac --role Contributor --name <service_principal_name> --scopes /subscriptions/$SUBSCRIPTION_ID
+        az login
+        SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        SP_NAME="<SP_NAME>"
+        az ad sp create-for-rbac --role Contributor --name $SP_NAME --scopes /subscriptions/$SUBSCRIPTION_ID
         ```
-        where SUBSCRIPTION_ID is the Azure subscription where the cluster is to be deployed and `service_principal_name` is the name to be assigned to the service principal. 
+        where <SP_NAME> is the name for the service principal
+       ***Note that if you have more than one subscription in your account, be sure to sign in the one to be used for the deploy, or specify the SUBSCRIPTION_ID manually.***
+
         Make a copy of the details provided
         ```json
         "addId":"<this is the CLIENT_ID value>",
@@ -106,6 +122,7 @@ The automation is delivered in a number of layers that are applied in order. Lay
 
     1. Assign Contributor and User Access Administrator roles to the service principal if not already in place.
         ```shell
+        CLIENT_ID="<CLIENT_ID>"
         az role assignment create --role "User Access Administrator" --assignee-object-id $(az ad sp list --filter "appId eq '$CLIENT_ID'" | jq '.[0].id' -r)
         ```
         where $CLIENT_ID is the appId of the service principal created in the prior step.

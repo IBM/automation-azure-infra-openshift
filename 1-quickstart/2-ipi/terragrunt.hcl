@@ -23,7 +23,8 @@ retryable_errors = [
   "(?s).*Error creating repo.*",
   "(?s).*read: connection reset by peer.*",
   "(?s).x509: certificate signed by unknown*",
-  "(?s).argocd-bootstrap.sh.*"
+  "(?s).argocd-bootstrap.sh.*",
+  "(?s).*Error Message: ibmcloud release not found*"
 ]
 
 retry_sleep_interval_sec = 60

@@ -1,4 +1,10 @@
 
+provider "clis" {
+
+
+
+
+}
 provider "gitops" {
 
 
@@ -20,10 +26,4 @@ provider "gitops" {
   server_name = var.gitops_server_name
   ca_cert = var.gitops_ca_cert
   ca_cert_file = var.gitops_ca_cert_file
-}
-provider "clis" {
-
-
-
-
 }
