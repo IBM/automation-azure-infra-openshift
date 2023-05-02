@@ -79,6 +79,12 @@ The automation is delivered in a number of layers that are applied in order. Lay
 
 3a. Azure domain 
     1. Buy or have existing `App Service Domain`. This should also have created a DNS zone in the same subscription. 
+    2. In order to delete a cluster, remove the Locks from the created DNS Zone
+        To do so,
+        1. Navigate to the resource group that contains the DNS Zone
+        2. Open the DNS Zone associated with the purchased domain
+        3. From the left hand menu, select `Locks` 
+        4. Delete any locks present.
 
 3b. External domain
     [Configure Azure DNS](https://github.com/openshift/installer/blob/d0f7654bc4a0cf73392371962aef68cd9552b5dd/docs/user/azure/dnszone.md).
